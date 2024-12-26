@@ -50,10 +50,20 @@
             "\"${pkg}/bin/${pkg.name}\" $@" \
             "(target:${tgt}) not found in ancestors (path:$(pwd))"
         '';
-        s9n = pkg: bashW.writeBashScriptBin' pkg.name [pkg] ''
-          echo " ::: s9n wrapper :::"
-          ${pkg}/bin/${pkg.name}
-        '';
+        pyAppDirs = pkgs.python3.withPackages (p: [p.appdirs]});
+        s9n = pkg: (bashW.writeBashScriptBin'
+          pkg.name
+          [pkg pkgs.babashka pyAppDirs]
+          ''
+            py='from appdirs *; print(user_cache_dir("s9n", ""))'
+            stated=#(echo $py | ${pyAppDirs}/bin/python3)
+            execd=$(pwd)
+            echo ${pkg}/bin/${pkg.name}
+            echo $execd
+            echo $stated
+            # ${pkg}/bin/${pkg.name}
+          ''
+        );
       in (bbW // bashW // {
       mkLibPath = mkLibPath;
       mkCljApp = clj-nix.lib.mkCljApp;
