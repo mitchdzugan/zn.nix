@@ -44,7 +44,7 @@
         bp = bashW.writeBashScriptBin "bp" ''
           uu "bb.edn" "bb $@" "not in a bb project [$(pwd)]"
         '';
-      in (bbW ++ bashW ++ {
+      in (bbW // bashW // {
       mkLibPath = mkLibPath;
       mkCljApp = clj-nix.lib.mkCljApp;
       writePkgScriptBin = writePkgScriptBin;
