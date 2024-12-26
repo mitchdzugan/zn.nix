@@ -50,7 +50,7 @@
             "\"${pkg}/bin/${pkg.name}\" $@" \
             "(target:${tgt}) not found in ancestors (path:$(pwd))"
         '';
-        pyAppDirs = pkgs.python3.withPackages (p: [p.appdirs]});
+        pyAppDirs = pkgs.python3.withPackages (p: [p.appdirs]);
         s9n = pkg: (bashW.writeBashScriptBin'
           pkg.name
           [pkg pkgs.babashka pyAppDirs]
