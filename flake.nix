@@ -55,9 +55,32 @@
           pkg.name
           [pkg pyAppDirs]
           ''
+            cmd=$1
+            if [ "$cmd" = "" ]; then cmd=status; fi
             py='from appdirs import *; print(user_cache_dir("s9n", ""))'
             stated=$(echo $py | ${pyAppDirs}/bin/python3)
             execd=$(pwd)
+
+            case "$cmd" in
+              "s" | "status")
+                echo "status";;
+              "u" | "up")
+                echo "up";;
+              "d" | "down")
+                echo "down";;
+              "j" | "join")
+                echo "join";;
+              "o" | "out")
+                echo "out";;
+              "e" | "error")
+                echo "error";;
+              "l" | "logs" | "out-error")
+                echo "logs";;
+              *)
+                echo "unknown command - $cmd"
+                exit 1
+            esac
+
             echo ${pkg}/bin/${pkg.name}
             echo $execd
             echo $stated
