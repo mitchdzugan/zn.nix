@@ -69,7 +69,7 @@
       uuCljWrap = pkg: uuWrap "deps.edn" pkg;
       uuRustWrap = pkg: uuWrap "Cargo.toml" pkg;
       s9n = s9n;
-      s9nFlakeRoot = pkg: uuFlakeWrap (s9n pkg);
+      s9nFlakeRoot = pkg: uuWrap "flake.nix" (s9n pkg);
     });
   };
 }
