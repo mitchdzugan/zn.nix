@@ -11,17 +11,24 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         mkLibPath = deps: "${builtins.concatStringsSep "/lib:" deps}/lib";
-        writePkgScriptBin' = ppg: pkg: exe: name: body: ((pkgs.writeTextFile {
+        writePkgScriptBin = name: ppg: exe: body: ((pkgs.writeTextFile {
           name = name;
           executable = true;
           destination = "/bin/${name}";
           text = ''
-            #!${pkg}/bin/${exe}
+            #!/usr/bin/env ${exe}
             ${body}
           '';
-        }) // { propagatedBuildInputs = [pkg] ++ ppg; });
-        writePkgScriptBin = p: e: n: b: (writePkgScriptBin' [] p e n b);
-        uu = writePkgScriptBin pkgs.bash "bash" "uu" ''
+        }) // { propagatedBuildInputs = ppg; });
+        mkScriptWriters = label: pkg: exe: {
+          "write${label}ScriptBin'" = name: ppg: body:
+            writePkgScriptBin name ([ pkg ] ++ ppg) exe body;
+          "write${label}ScriptBin" = name: body:
+            writePkgScriptBin name [ pkg ] exe body;
+        };
+        bashW = mkScriptWriters "Bash" pkgs.bash "bash";
+        bbW = mkScriptWriters "Bb" pkgs.babashka "bb";
+        uu = bashW.writeBashScriptBin "uu" ''
           base=$(pwd)
           while true; do
             if [ -f "$(pwd)/$1" ]; then
@@ -34,10 +41,10 @@
             cd ..
           done
         '';
-        bp = writePkgScriptBin' [ uu ] pkgs.bash "bash" "bp" ''
+        bp = bashW.writeBashScriptBin "bp" ''
           uu "bb.edn" "bb $@" "not in a bb project [$(pwd)]"
         '';
-      in {
+      in (bbW ++ bashW ++ {
       mkLibPath = mkLibPath;
       mkCljApp = clj-nix.lib.mkCljApp;
       writePkgScriptBin = writePkgScriptBin;
@@ -45,6 +52,6 @@
       bp = bp;
       jsim = jsim.packages.${system}.jsim;
       rep = rep.packages.${system}.rep;
-    };
+    });
   };
 }
