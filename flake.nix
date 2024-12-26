@@ -11,17 +11,17 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         mkLibPath = deps: "${builtins.concatStringsSep "/lib:" deps}/lib";
-        writePkgScriptBin' = ppg: pkg: name: body: ((pkgs.writeTextFile {
+        writePkgScriptBin' = ppg: pkg: exe: name: body: ((pkgs.writeTextFile {
           name = name;
           executable = true;
           destination = "/bin/${name}";
           text = ''
-            #!${pkg}/bin/${pkg.executable}
+            #!${pkg}/bin/${exe}
             ${body}
           '';
         }) // { propagatedBuildInputs = [pkg] ++ ppg; });
-        writePkgScriptBin = p: n: b: (writePkgScriptBin' [] p n b);
-        uu = writePkgScriptBin pkgs.bash "uu" ''
+        writePkgScriptBin = p: e: n: b: (writePkgScriptBin' [] p e n b);
+        uu = writePkgScriptBin pkgs.bash "bash" "uu" ''
           base=$(pwd)
           while true; do
             if [ -f "$(pwd)/$1" ]; then
@@ -34,7 +34,7 @@
             cd ..
           done
         '';
-        bp = writePkgScriptBin' [ uu ] pkgs.bash "bp" ''
+        bp = writePkgScriptBin' [ uu ] pkgs.bash "bash" "bp" ''
           uu "bb.edn" "bb $@" "not in a bb project [$(pwd)]"
         '';
       in {
