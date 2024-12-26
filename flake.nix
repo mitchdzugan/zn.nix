@@ -45,7 +45,10 @@
           uu "bb.edn" "bb $@" "not in a bb project [$(pwd)]"
         '';
         uuWrap = tgt: pkg: bashW.writeBashScriptBin' pkg.name [uu pkg ] ''
-          uu "${tgt}" "\"${pkg}/bin/${pkg.name}\" $@" "${tgt} not found: $(pwd)"
+          ${uu}/bin/uu \
+            "${tgt}" \
+            "\"${pkg}/bin/${pkg.name}\" $@" \
+            "(target:${tgt}) not found in ancestors (path:$(pwd))"
         '';
       in (bbW // bashW // {
       mkLibPath = mkLibPath;
