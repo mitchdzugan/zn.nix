@@ -50,6 +50,10 @@
             "\"${pkg}/bin/${pkg.name}\" $@" \
             "(target:${tgt}) not found in ancestors (path:$(pwd))"
         '';
+        s9n = pkg: bashW.writeBashScriptBin pkg.name [pkg] ''
+          echo " ::: s9n wrapper :::"
+          ${pkg}/bin/${pkg.name}
+        '';
       in (bbW // bashW // {
       mkLibPath = mkLibPath;
       mkCljApp = clj-nix.lib.mkCljApp;
@@ -64,6 +68,8 @@
       uuBbWrap = pkg: uuWrap "bb.edn" pkg;
       uuCljWrap = pkg: uuWrap "deps.edn" pkg;
       uuRustWrap = pkg: uuWrap "Cargo.toml" pkg;
+      s9n = s9n;
+      s9nFlakeRoot = pkg: uuFlakeWrap (s9n pkg);
     });
   };
 }
