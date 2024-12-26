@@ -11,7 +11,7 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         mkLibPath = deps: "${builtins.concatStringsSep "/lib:" deps}/lib";
-        writePkgScriptBin_ppg = ppg: pkg: name: body: ((pkgs.writeTextFile {
+        writePkgScriptBin' = ppg: pkg: name: body: ((pkgs.writeTextFile {
           name = name;
           export = true;
           destination = "/bin/${name}";
@@ -20,7 +20,7 @@
             ${body}
           '';
         }) // { propagatedBuildInputs = [pkg] ++ ppg; });
-        writePkgScriptBin = p: n: b: (writePkgScriptBin_ppg [] p n b);
+        writePkgScriptBin = p: n: b: (writePkgScriptBin' [] p n b);
         uu = writePkgScriptBin pkgs.bash "uu" ''
           base=$(pwd)
           while true; do
@@ -34,7 +34,7 @@
             cd ..
           done
         '';
-        bp = writePkgScriptBin_ppg [ uu ] pkgs.bash "bp" ''
+        bp = writePkgScriptBin' [ uu ] pkgs.bash "bp" ''
           uu "bb.edn" "bb $@" "not in a bb project [$(pwd)]"
         '';
       in {
