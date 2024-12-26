@@ -13,7 +13,7 @@
         mkLibPath = deps: "${builtins.concatStringsSep "/lib:" deps}/lib";
         writePkgScriptBin' = ppg: pkg: name: body: ((pkgs.writeTextFile {
           name = name;
-          export = true;
+          executable = true;
           destination = "/bin/${name}";
           text = ''
             #!${pkg}/bin/${pkg.executable}
