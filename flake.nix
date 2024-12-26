@@ -50,7 +50,7 @@
             "\"${pkg}/bin/${pkg.name}\" $@" \
             "(target:${tgt}) not found in ancestors (path:$(pwd))"
         '';
-        s9n = pkg: bashW.writeBashScriptBin pkg.name [pkg] ''
+        s9n = pkg: bashW.writeBashScriptBin' pkg.name [pkg] ''
           echo " ::: s9n wrapper :::"
           ${pkg}/bin/${pkg.name}
         '';
