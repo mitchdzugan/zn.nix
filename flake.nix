@@ -45,7 +45,7 @@
           uu "bb.edn" "bb $@" "not in a bb project [$(pwd)]"
         '';
         uuWrap = tgt: pkg: bashW.writeBashScriptBin' pkg.name [uu pkg ] ''
-          uu "${tgt}" "${pkg.name} $@" "not in a ${tgt} project [$(pwd)]"
+          uu "${tgt}" "\"${pkg}/bin/${pkg.name}\" $@" "${tgt} not found: $(pwd)"
         '';
       in (bbW // bashW // {
       mkLibPath = mkLibPath;
@@ -56,6 +56,11 @@
       jsim = jsim.packages.${system}.jsim;
       rep = rep.packages.${system}.rep;
       uuWrap = uuWrap;
+      uuFlakeWrap = pkg: uuWrap "flake.nix" pkg;
+      uuNodeWrap = pkg: uuWrap "package.json" pkg;
+      uuBbWrap = pkg: uuWrap "bb.edn" pkg;
+      uuCljWrap = pkg: uuWrap "deps.edn" pkg;
+      uuRustWrap = pkg: uuWrap "Cargo.toml" pkg;
     });
   };
 }
