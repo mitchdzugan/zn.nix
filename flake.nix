@@ -44,7 +44,7 @@
         bp = bashW.writeBashScriptBin "bp" ''
           uu "bb.edn" "bb $@" "not in a bb project [$(pwd)]"
         '';
-        uuWrap = tgt: pkg: bashW.writeBashScriptBin pkg.name [uu pkg ] ''
+        uuWrap = tgt: pkg: bashW.writeBashScriptBin' pkg.name [uu pkg ] ''
           uu "${tgt}" "${pkg.name} $@" "not in a ${tgt} project [$(pwd)]"
         '';
       in (bbW // bashW // {
