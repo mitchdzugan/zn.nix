@@ -53,10 +53,10 @@
         pyAppDirs = pkgs.python3.withPackages (p: [p.appdirs]);
         s9n = pkg: (bashW.writeBashScriptBin'
           pkg.name
-          [pkg pkgs.babashka pyAppDirs]
+          [pkg pyAppDirs]
           ''
-            py='from appdirs *; print(user_cache_dir("s9n", ""))'
-            stated=#(echo $py | ${pyAppDirs}/bin/python3)
+            py='from appdirs import *; print(user_cache_dir("s9n", ""))'
+            stated=$(echo $py | ${pyAppDirs}/bin/python3)
             execd=$(pwd)
             echo ${pkg}/bin/${pkg.name}
             echo $execd
