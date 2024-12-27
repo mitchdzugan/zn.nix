@@ -20,19 +20,19 @@
             ${body}
           '';
         }) // { propagatedBuildInputs = ppg; });
-        mkScriptWriters = label: pkg: exe: {
+        mkScriptWriters = label: pkgs: exe: {
           "write${label}ScriptBin'" = name: ppg: body:
-            writePkgScriptBin name ([ pkg ] ++ ppg) exe body;
+            writePkgScriptBin name (pkgs ++ ppg) exe body;
           "write${label}ScriptBin" = name: body:
-            writePkgScriptBin name [ pkg ] exe body;
+            writePkgScriptBin name pkgs exe body;
         };
-        bashW = mkScriptWriters "Bash" pkgs.bash "bash";
-        bbW = mkScriptWriters "Bb" pkgs.babashka "bb";
+        bashW = mkScriptWriters "Bash" [pkgs.bash] "bash";
+        bbW = mkScriptWriters "Bb" [pkgs.babashka] "bb";
         uu = bashW.writeBashScriptBin "uu" ''
           base=$(pwd)
           while true; do
             if [ -f "$(pwd)/$1" ]; then
-              eval $2
+              eval "$2"
               exit 0
             elif [ "$(pwd)" = "/" ]; then
               >&2 echo $3
@@ -45,11 +45,56 @@
           uu "bb.edn" "bb $@" "not in a bb project [$(pwd)]"
         '';
         uuWrap = tgt: pkg: bashW.writeBashScriptBin' pkg.name [uu pkg ] ''
-          ${uu}/bin/uu \
-            "${tgt}" \
-            "\"${pkg}/bin/${pkg.name}\" $@" \
+          exe="\"${pkg}/bin/${pkg.name}\" $@"
+          ${uu}/bin/uu "${tgt}" "$exe" \
             "(target:${tgt}) not found in ancestors (path:$(pwd))"
         '';
+        zflake = uuWrap "flake.nix" (bbW.writeBbScriptBin "zflake" ''
+          (require '[babashka.fs :as fs]
+                   '[babashka.process :refer [shell]])
+
+          (defn sh [& cmd]
+            (println (str "  " (str/join " " cmd)))
+            (apply shell cmd))
+
+          (def zflake-devs-atom (atom []))
+
+          (defn get-zflake-devs []
+            (if-not (empty? @zflake-devs-atom) (first @zflake-devs-atom)
+              :must-calc))
+
+          (defn zflake-dev-up [[a1 & rest :as all]]
+            (println " -- in zflake-dev-up --")
+            (println all))
+
+          (defn zflake-dev-down [[a1 & rest :as all]]
+            (println " -- in zflake-dev-down --")
+            (println all))
+
+          (defn zflake-dev-status [[a1 & rest :as all]]
+            (println " -- in zflake-dev-status --")
+            (println (get-zflake-devs))
+            (println all))
+
+          (defn zflake-dev [[a1 & rest :as all]]
+            (case a1
+              ("u" "up" ":u" ":up") (zflake-dev-up rest)
+              ("d" "down" ":d" ":down") (zflake-dev-down rest)
+              ("s" "status" ":s" ":status") (zflake-dev-status rest)
+              (zflake-dev-status all)))
+
+          (defn zflake-run [[a1 & rest :as all]]
+            (println "[zflake] :run")
+            (apply sh "nix" "run" (str ".#" a1) rest))
+
+          (defn zflake [[a1 & rest :as all]]
+            (case a1
+              ("d" "dev" ":d" ":dev") (zflake-dev rest)
+              ("r" "run" ":r" ":run") (zflake-run rest)
+              (zflake-run all)))
+
+          (zflake *command-line-args*)
+        '');
         pyAppDirs = pkgs.python3.withPackages (p: [p.appdirs]);
         s9n = pkg: (bashW.writeBashScriptBin'
           pkg.name
@@ -174,6 +219,7 @@
       uuRustWrap = pkg: uuWrap "Cargo.toml" pkg;
       s9n = s9n;
       s9nFlakeRoot = pkg: uuWrap "flake.nix" (s9n pkg);
+      zflake = zflake;
     });
   };
 }
