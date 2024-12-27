@@ -53,22 +53,97 @@
         pyAppDirs = pkgs.python3.withPackages (p: [p.appdirs]);
         s9n = pkg: (bashW.writeBashScriptBin'
           pkg.name
-          [pkg pyAppDirs]
+          [pkg pyAppDirs pkgs.coreutils pkgs.ps pkgs.procps]
           ''
             cmd=$1
             if [ "$cmd" = "" ]; then cmd=status; fi
+
+            cubin="${pkgs.coreutils}/bin"
+            pidself="$$"
+            ts=$($cubin/date +%s)
+
             py='from appdirs import *; print(user_cache_dir("s9n", ""))'
             stated=$(echo $py | ${pyAppDirs}/bin/python3)
             execd=$(pwd)
             taskname="${pkg.name}"
+            function hash_str () {
+              echo $1 | $cubin/md5sum | $cubin/cut -f1 -d" "
+              py='from appdirs import *; print(user_cache_dir("s9n", ""))'
+              stated=$(echo $py | ${pyAppDirs}/bin/python3)
+            }
+
+            function check_is_active () {
+              export psres=$(${pkgs.ps}/bin/ps -o args $1)
+              py1="import os"
+              py2="print(os.environ['psres'].splitlines()[-1].split()[-1])"
+              py="$py1;$py2"
+              curr_confirm=$(echo $py | ${pyAppDirs}/bin/python3)
+              if [ "$curr_confirm" = "$2" ]; then echo 1; fi
+            }
+
+            taskid=$(hash_str "[$execd,$taskname]")
+            taskdirname="$(basename $execd)"--"$taskname"--"$taskid"
+            taskd="$stated/$taskdirname"
+            mkdir -p "$taskd/by-pid"
+            pid=""
+            is_active=""
+            echo "$taskd/pid"
+            if [ -f "$taskd/pid" ]; then
+              pid=$(cat "$taskd/pid")
+              pidd="$taskd/by-pid/$pid"
+              if [ -d "$pidd" ]; then
+                if [ -f "$pidd/pid-confirm" ]; then
+                  is_active=$(check_is_active $pid $(cat "$pidd/pid-confirm"))
+                fi
+              fi
+            fi
+
+            function info () {
+              >&2 echo "[s9n]#$(basename $execd) :$taskname \"$@\""
+            }
 
             case "$cmd" in
               "s" | "status")
-                echo "status";;
+                ia_edn="$([ -z \"$is_active\" ] && echo true || echo false)"
+                info "status"
+                echo "{:pid $pid"
+                echo " :active? $ia_edn"
+                echo "}"
+                ;;
               "u" | "up")
-                echo "up";;
+                if [ "$is_active" = "1" ]; then
+                  info already up "{:pid $pid}"
+                  exit 0
+                fi
+                info starting up
+                pid_confirm="confirm-$ts-$pidself"
+                rm -rf "$taskd/by-pid"
+                pwd="$taskd/by-pid/active"
+                mkdir -p "$pwd"
+                mkfifo "$pwd/in"
+                touch "$pwd/out"
+                touch "$pwd/err"
+                echo "#!${pkgs.bash}/bin/bash"                      > "$pwd/exe"
+                echo "cat \"$pwd/in\" | ${pkg}/bin/${pkg.name} \\" >> "$pwd/exe"
+                echo "  2> \"$pwd/err\" \\"                        >> "$pwd/exe"
+                echo "  1> \"$pwd/out\" \\"                        >> "$pwd/exe"
+                chmod +x "$pwd/exe"
+                ${pkgs.bash}/bin/bash -c "$pwd/exe $pid_confirm" &
+                pid=$!
+                disown $pid
+                echo $pid_confirm > "$pwd/pid-confirm"
+                echo $ts > "$pwd/started"
+                ln -s "$pwd" "$taskd/by-pid/$pid"
+                echo $pid > "$taskd/pid"
+                info is up "{:pid $pid}";;
               "d" | "down")
-                echo "down";;
+                if [ ! "$is_active" = "1" ]; then
+                  info already down
+                  exit 0
+                fi
+                info shutting down
+                pkill -P $pid
+                info is down;;
               "j" | "join")
                 echo "join";;
               "o" | "out")
@@ -81,8 +156,6 @@
                 echo "unknown command - $cmd"
                 exit 1
             esac
-
-            # ${pkg}/bin/${pkg.name}
           ''
         );
       in (bbW // bashW // {
