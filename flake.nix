@@ -49,80 +49,15 @@
           ${uu}/bin/uu "${tgt}" "$exe" \
             "(target:${tgt}) not found in ancestors (path:$(pwd))"
         '';
-        zflake = uuWrap "flake.nix" (bbW.writeBbScriptBin "zflake" ''
-          (require '[babashka.fs :as fs]
-                   '[babashka.process :refer [shell]])
-
-          (defn sh [& cmd]
-            (println (str "  " (str/join " " cmd)))
-            (apply shell cmd))
-
-          (defn once [f]
-            (let [state (atom [])]
-              (fn []
-                (if-not (empty? @state) (first @state)
-                  (let [res (f)]
-                    (reset! state [res])
-                    res)))))
-
-          (defmacro defn-once [name & rest]
-            `(def ~name (once (fn [] ~@rest))))
-
-          (defn-once get-nix-system
-            (-> {:out :string :err :string}
-                (shell "nix" "eval" "--impure" "--raw" "--expr"
-                       "builtins.currentSystem")
-                :out
-                (try (catch Exception _ nil))))
-
-          (defn-once get-zflake-devs
-            (let [nix-system (get-nix-system)
-                  n-getFlake (str "(builtins.getFlake \"" (fs/cwd) "\")")
-                  n-zflakeDev (str ".outputs.zflake-dev." nix-system)
-                  n-zflakeDevFn (str "(f: f" n-zflakeDev ")")
-                  n (str "(" n-zflakeDevFn n-getFlake ")")]
-              (-> {:out :string :err :string}
-                  (shell "nix" "eval" "--impure" "--json" "--expr" n)
-                  :out
-                  (try (catch Exception _ nil)))))
-
-          (defn zflake-dev-up [[a1 & rest :as all]]
-            (println " -- in zflake-dev-up --")
-            (println all))
-
-          (defn zflake-dev-down [[a1 & rest :as all]]
-            (println " -- in zflake-dev-down --")
-            (println all))
-
-          (defn zflake-dev-status [[a1 & rest :as all]]
-            (println (get-zflake-devs))
-            (println all))
-
-          (defn zflake-dev [[a1 & rest :as all]]
-            (case a1
-              ("u" "up" ":u" ":up") (zflake-dev-up rest)
-              ("d" "down" ":d" ":down") (zflake-dev-down rest)
-              ("s" "status" ":s" ":status") (zflake-dev-status rest)
-              (zflake-dev-status all)))
-
-          (defn zflake-run [[a1 & rest :as all]]
-            (println "[zflake] :run")
-            (apply sh "nix" "run" (str ".#" a1) rest))
-
-          (defn zflake [[a1 & rest :as all]]
-            (case a1
-              ("d" "dev" ":d" ":dev") (zflake-dev rest)
-              ("r" "run" ":r" ":run") (zflake-run rest)
-              (zflake-run all)))
-
-          (zflake *command-line-args*)
-        '');
         pyAppDirs = pkgs.python3.withPackages (p: [p.appdirs]);
-        s9n = pkg: (bashW.writeBashScriptBin'
-          pkg.name
-          [pkg pyAppDirs pkgs.coreutils pkgs.ps pkgs.procps]
+        s9n-raw = bashW.writeBashScriptBin'
+          "s9n-raw"
+          [pyAppDirs pkgs.coreutils pkgs.ps pkgs.procps]
           ''
-            cmd=$1
+            execd="$1"
+            taskname="$2"
+            runsh="$3"
+            cmd="$4"
             if [ "$cmd" = "" ]; then cmd=status; fi
 
             cubin="${pkgs.coreutils}/bin"
@@ -131,8 +66,6 @@
 
             py='from appdirs import *; print(user_cache_dir("s9n", ""))'
             stated=$(echo $py | ${pyAppDirs}/bin/python3)
-            execd=$(pwd)
-            taskname="${pkg.name}"
             function hash_str () {
               echo $1 | $cubin/md5sum | $cubin/cut -f1 -d" "
               py='from appdirs import *; print(user_cache_dir("s9n", ""))'
@@ -189,10 +122,11 @@
                 mkfifo "$pwd/in"
                 touch "$pwd/out"
                 touch "$pwd/err"
-                echo "#!${pkgs.bash}/bin/bash"                      > "$pwd/exe"
-                echo "cat \"$pwd/in\" | ${pkg}/bin/${pkg.name} \\" >> "$pwd/exe"
-                echo "  2> \"$pwd/err\" \\"                        >> "$pwd/exe"
-                echo "  1> \"$pwd/out\" \\"                        >> "$pwd/exe"
+                echo "#!${pkgs.bash}/bin/bash"      > "$pwd/exe"
+                echo "cd \"$execd\""               >> "$pwd/exe"
+                echo "cat \"$pwd/in\" | $runsh \\" >> "$pwd/exe"
+                echo "  2> \"$pwd/err\" \\"        >> "$pwd/exe"
+                echo "  1> \"$pwd/out\" \\"        >> "$pwd/exe"
                 chmod +x "$pwd/exe"
                 ${pkgs.bash}/bin/bash -c "$pwd/exe $pid_confirm" &
                 pid=$!
@@ -222,8 +156,103 @@
                 echo "unknown command - $cmd"
                 exit 1
             esac
+          '';
+        zflake = uuWrap "flake.nix" (bbW.writeBbScriptBin'
+          "zflake"
+          [s9n-raw pkgs.bash]
+          ''
+            (require '[babashka.fs :as fs]
+                     '[babashka.process :refer [shell exec]]
+                     '[clojure.walk :as walk])
+
+            (defn sh-v [& cmd]
+              (println (str "  " (str/join " " cmd)))
+              (apply shell cmd))
+
+            (defn once [f]
+              (let [state (atom [])]
+                (fn []
+                  (if-not (empty? @state) (first @state)
+                    (let [res (f)]
+                      (reset! state [res])
+                      res)))))
+
+            (defmacro defn-once [name & rest]
+              `(def ~name (once (fn [] ~@rest))))
+
+            (defn-once get-nix-system
+              (-> {:out :string :err :string}
+                  (shell "nix" "eval" "--impure" "--raw" "--expr"
+                         "builtins.currentSystem")
+                  :out
+                  (try (catch Exception _ nil))))
+
+            (defn-once get-zflake-dev
+              (let [nix-system (get-nix-system)
+                    n-getFlake (str "(builtins.getFlake \"" (fs/cwd) "\")")
+                    n-zflakeDev (str ".outputs.zflake-dev." nix-system)
+                    n-zflakeDevFn (str "(f: f" n-zflakeDev ")")
+                    n-zflakeDevSys (str "(" n-zflakeDevFn n-getFlake ")")
+                    ks (mapcat #(-> [(str "post-" %1) (str "pre-" %1)])
+                               ["up" "down" "status"])
+                    n-inits (str "{" (reduce #(str %1 %2 "=\"\";") "" ks) "}")
+                    n-s9nMap (str "(builtins.map (p: p.name) z.singletons)")
+                    n-attrsFinal (str "{singletons=" n-s9nMap ";}")
+                    n-fixFn (str "(z: (" n-inits " // z // " n-attrsFinal "))")
+                    n (str "(" n-fixFn n-zflakeDevSys ")")]
+                (-> {:out :string :err :string}
+                    (shell "nix" "eval" "--impure" "--json" "--expr" n)
+                    :out
+                    json/parse-string
+                    (update "singletons"
+                            (->> (fn [name]
+                                   {:runsh (str "nix run .#" name)
+                                    :taskname name
+                                    :execd (str (fs/cwd))})
+                                 (partial map)))
+                    (try (catch Exception _ nil)))))
+
+            (defn zflake-s9n-cmd [cmd {:keys [execd taskname runsh]}]
+              (shell "${s9n-raw}/bin/s9n-raw" execd taskname runsh cmd))
+
+            (defn zflake-s9n-cmds [cmd & _]
+              (println (str "[zflake] :dev :" cmd))
+              (let [ask-cfg #(get (get-zflake-dev) (apply str %&))]
+                (shell "${pkgs.bash}/bin/bash" "-c" (ask-cfg "pre-" cmd))
+                (doseq [s9n (ask-cfg "singletons")] (zflake-s9n-cmd cmd s9n))
+                (shell "${pkgs.bash}/bin/bash" "-c" (ask-cfg "post-" cmd))))
+
+            (def zflake-dev-up (partial zflake-s9n-cmds "up"))
+            (def zflake-dev-down (partial zflake-s9n-cmds "down"))
+            (def zflake-dev-status (partial zflake-s9n-cmds "status"))
+
+            (defn zflake-dev [[a1 & rest :as all]]
+              (case a1
+                ("u" "up" ":u" ":up") (zflake-dev-up rest)
+                ("d" "down" ":d" ":down") (zflake-dev-down rest)
+                ("s" "status" ":s" ":status") (zflake-dev-status rest)
+                (zflake-dev-status all)))
+
+            (defn zflake-run [[a1 & rest :as all]]
+              (println "[zflake] :run")
+              (apply sh-v "nix" "run" (str ".#" a1) rest))
+
+            (defn zflake [[a1 & rest :as all]]
+              (case a1
+                ("d" "dev" ":d" ":dev") (zflake-dev rest)
+                ("r" "run" ":r" ":run") (zflake-run rest)
+                (zflake-run all)))
+
+            (zflake *command-line-args*)
           ''
         );
+        s9n = pkg: (bashW.writeBashScriptBin' pkg.name [s9n-raw pkg] ''
+          cmd=$1
+          execd="$(pwd)"
+          taskname="${pkg.name}"
+          runsh="${pkg}/bin/${pkg.name}"
+          ${s9n-raw}/bin/s9n-raw "$execd" "$taskname" "$runsh" "$cmd"
+        '');
       in (bbW // bashW // {
       mkLibPath = mkLibPath;
       mkCljApp = clj-nix.lib.mkCljApp;
