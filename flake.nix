@@ -57,11 +57,34 @@
             (println (str "  " (str/join " " cmd)))
             (apply shell cmd))
 
-          (def zflake-devs-atom (atom []))
+          (defn once [f]
+            (let [state (atom [])]
+              (fn []
+                (if-not (empty? @state) (first @state)
+                  (let [res (f)]
+                    (reset! state [res])
+                    res)))))
 
-          (defn get-zflake-devs []
-            (if-not (empty? @zflake-devs-atom) (first @zflake-devs-atom)
-              :must-calc))
+          (defmacro defn-once [name & rest]
+            `(def ~name (once (fn [] ~@rest))))
+
+          (defn-once get-nix-system
+            (-> {:out :string :err :string}
+                (shell "nix" "eval" "--impure" "--raw" "--expr"
+                       "builtins.currentSystem")
+                :out
+                (try (catch Exception _ nil))))
+
+          (defn-once get-zflake-devs
+            (let [nix-system (get-nix-system)
+                  n-getFlake (str "(builtins.getFlake \"" (fs/cwd) "\")")
+                  n-zflakeDev (str ".outputs.zflake-dev." nix-system)
+                  n-zflakeDevFn (str "(f: f" n-zflakeDev ")")
+                  n (str "(" n-zflakeDevFn n-getFlake ")")]
+              (-> {:out :string :err :string}
+                  (shell "nix" "eval" "--impure" "--json" "--expr" n)
+                  :out
+                  (try (catch Exception _ nil)))))
 
           (defn zflake-dev-up [[a1 & rest :as all]]
             (println " -- in zflake-dev-up --")
@@ -72,7 +95,6 @@
             (println all))
 
           (defn zflake-dev-status [[a1 & rest :as all]]
-            (println " -- in zflake-dev-status --")
             (println (get-zflake-devs))
             (println all))
 
@@ -132,7 +154,6 @@
             mkdir -p "$taskd/by-pid"
             pid=""
             is_active=""
-            echo "$taskd/pid"
             if [ -f "$taskd/pid" ]; then
               pid=$(cat "$taskd/pid")
               pidd="$taskd/by-pid/$pid"
