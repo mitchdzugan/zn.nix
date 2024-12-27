@@ -60,6 +60,7 @@
             py='from appdirs import *; print(user_cache_dir("s9n", ""))'
             stated=$(echo $py | ${pyAppDirs}/bin/python3)
             execd=$(pwd)
+            taskname="${pkg.name}"
 
             case "$cmd" in
               "s" | "status")
@@ -81,9 +82,6 @@
                 exit 1
             esac
 
-            echo ${pkg}/bin/${pkg.name}
-            echo $execd
-            echo $stated
             # ${pkg}/bin/${pkg.name}
           ''
         );
