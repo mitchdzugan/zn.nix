@@ -7,8 +7,8 @@
   (:gen-class))
 (set! *warn-on-reflection* true)
 
-(def s9n-bin (System/getenv "ZFLAKE_S9N_BIN"))
-(def bash-bin (System/getenv "ZFLAKE_BASH_BIN"))
+(def ^:dynamic *s9n-bin* nil)
+(def ^:dynamic *bash-bin* nil)
 
 (defn sh-v [& cmd]
   (println (str "  " (str/join " " cmd)))
@@ -65,14 +65,14 @@
         post (get cfg (keyword (str "post-" cmd)) "")]
     (shell {:extra-env {"ZFLAKE_CMD_PRE" pre
                         "ZFLAKE_CMD_POST" post}}
-           s9n-bin execd taskname runsh cmd)))
+           *s9n-bin* execd taskname runsh cmd)))
 
 (defn zflake-s9n-cmds [cmd & _]
   (println (str "[zflake] :dev :" cmd))
   (let [ask-cfg #(get (get-zflake-dev) (apply str %&))]
-    (shell bash-bin "-c" (ask-cfg "pre-" cmd))
+    (shell *bash-bin* "-c" (ask-cfg "pre-" cmd))
     (doseq [s9n (ask-cfg "singletons")] (zflake-s9n-cmd cmd s9n))
-    (shell bash-bin "-c" (ask-cfg "post-" cmd))))
+    (shell *bash-bin* "-c" (ask-cfg "post-" cmd))))
 
 (def zflake-dev-up (partial zflake-s9n-cmds "up"))
 (def zflake-dev-down (partial zflake-s9n-cmds "down"))
@@ -95,4 +95,6 @@
     ("r" "run" ":r" ":run") (zflake-run rest)
     (zflake-run all)))
 
-(defn -main [& args] (zflake args) (shutdown-agents))
+(defn -main [s9n-bin bash-bin & args]
+  (binding [*s9n-bin* s9n-bin *bash-bin* bash-bin]
+    (zflake args)) (shutdown-agents))
