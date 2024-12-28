@@ -98,18 +98,36 @@
             fi
 
             function info () {
-              >&2 echo "[s9n]#$(basename $execd) :$taskname \"$@\""
+              m="$1"
+              shift
+              BLACK_BRIGHT='\033[0;90m'
+              YELLOW_BRIGHT='\033[0;93m'
+              MAGENTA_BRIGHT='\033[0;95m'
+              BOLD='\033[1m'
+              function c () {
+                content="$1"
+                shift
+                NC='\033[0m'
+                echo -e "$@$content$NC"
+              }
+              outs=""
+              outs="$outs$(c "⦗" $BLACK_BRIGHT $BOLD)"
+              outs="$outs$(c "s9n/" $YELLOW_BRIGHT $BOLD)"
+              outs="$outs$(c "$m" $MAGENTA_BRIGHT $BOLD)"
+              outs="$outs$(c "⦘: " $BLACK_BRIGHT $BOLD)"
+              >&2 printf "$outs\n"
+              # >&2 echo "[s9n/$m]#$(basename $execd) :$taskname $@"
             }
 
             case "$cmd" in
               "u" | "up")
                 if [ "$is_active" = "1" ]; then
-                  info already up "{:pid $pid}"
+                  info up already up "{:pid $pid}"
                   exit 0
                 fi;;
               "d" | "down")
                 if [ ! "$is_active" = "1" ]; then
-                  info already down
+                  info down already down
                   exit 0
                 fi;;
             esac
@@ -118,12 +136,12 @@
             case "$cmd" in
               "s" | "status")
                 ia_edn="$([ -z \"$is_active\" ] && echo true || echo false)"
-                info "status"
+                info status
                 echo "{:pid $pid"
                 echo " :active? $ia_edn"
                 echo "}";;
               "u" | "up")
-                info starting up
+                info up initiating
                 pid_confirm="confirm-$ts-$pidself"
                 rm -rf "$taskd/by-pid"
                 pwd="$taskd/by-pid/active"
@@ -144,11 +162,11 @@
                 echo $ts > "$pwd/started"
                 ln -s "$pwd" "$taskd/by-pid/$pid"
                 echo $pid > "$taskd/pid"
-                info is up "{:pid $pid}";;
+                info up completed "{:pid $pid}";;
               "d" | "down")
-                info shutting down
+                info down initiating
                 pkill -P $pid
-                info is down;;
+                info down completed;;
               "j" | "join")
                 echo "join";;
               "o" | "out")
