@@ -223,7 +223,8 @@
             (defn zflake-s9n-cmd [cmd {:keys [execd taskname runsh] :as cfg}]
               (let [pre (get cfg (keyword (str "pre-" cmd)) "")
                     post (get cfg (keyword (str "post-" cmd)) "")]
-                (shell {:extra-env {"ZFLAKE_CMD_PRE" pre "ZFLAKE_CMD_POST" post}}
+                (shell {:extra-env {"ZFLAKE_CMD_PRE" pre
+                                    "ZFLAKE_CMD_POST" post}}
                        "${s9n-raw}/bin/s9n-raw" execd taskname runsh cmd)))
 
             (defn zflake-s9n-cmds [cmd & _]

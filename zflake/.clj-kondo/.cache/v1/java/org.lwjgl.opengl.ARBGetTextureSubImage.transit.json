@@ -1,0 +1,1 @@
+["^ ","~:members",["^ ","nglGetTextureSubImage",["~#set",[["^ ","~:flags",["^2",["~:method","~:public","~:static"]]]]],"glGetTextureSubImage",["^2",[["^ ","^3",["^2",["^4","^5","^6"]]]]],"nglGetCompressedTextureSubImage",["^2",[["^ ","^3",["^2",["^4","^5","^6"]]]]],"glGetCompressedTextureSubImage",["^2",[["^ ","^3",["^2",["^4","^5","^6"]]]]]]]

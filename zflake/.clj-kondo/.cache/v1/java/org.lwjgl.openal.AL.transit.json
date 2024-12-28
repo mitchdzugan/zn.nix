@@ -1,0 +1,1 @@
+["^ ","~:members",["^ ","setCurrentProcess",["~#set",[["^ ","~:flags",["^2",["~:method","~:public","~:static"]]]]],"setCurrentThread",["^2",[["^ ","^3",["^2",["^4","^5","^6"]]]]],"getCapabilities",["^2",[["^ ","^3",["^2",["^4","^5","^6"]]]]],"createCapabilities",["^2",[["^ ","^3",["^2",["^4","^5","^6"]]]]]]]

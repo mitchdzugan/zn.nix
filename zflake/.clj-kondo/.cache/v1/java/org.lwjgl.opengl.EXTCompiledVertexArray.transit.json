@@ -1,0 +1,1 @@
+["^ ","~:members",["^ ","GL_ARRAY_ELEMENT_LOCK_FIRST_EXT",["~#set",[["^ ","~:flags",["^2",["~:public","~:static","~:field","~:final"]]]]],"GL_ARRAY_ELEMENT_LOCK_COUNT_EXT",["^2",[["^ ","^3",["^2",["^4","^5","^6","^7"]]]]],"glLockArraysEXT",["^2",[["^ ","^3",["^2",["~:method","^4","^5"]]]]],"glUnlockArraysEXT",["^2",[["^ ","^3",["^2",["^:","^4","^5"]]]]]]]
