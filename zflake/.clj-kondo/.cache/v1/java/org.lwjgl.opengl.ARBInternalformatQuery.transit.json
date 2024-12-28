@@ -1,1 +1,0 @@
-["^ ","~:members",["^ ","GL_NUM_SAMPLE_COUNTS",["~#set",[["^ ","~:flags",["^2",["~:public","~:static","~:field","~:final"]]]]],"nglGetInternalformativ",["^2",[["^ ","^3",["^2",["~:method","^4","^5"]]]]],"glGetInternalformativ",["^2",[["^ ","^3",["^2",["^9","^4","^5"]]]]],"glGetInternalformati",["^2",[["^ ","^3",["^2",["^9","^4","^5"]]]]]]]

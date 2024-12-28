@@ -1,1 +1,0 @@
-["^ ","~:members",["^ ","glfwGetWaylandDisplay",["~#set",[["^ ","~:flags",["^2",["~:method","~:public","~:static"]]]]],"glfwGetWaylandMonitor",["^2",[["^ ","^3",["^2",["^4","^5","^6"]]]]],"glfwGetWaylandWindow",["^2",[["^ ","^3",["^2",["^4","^5","^6"]]]]]]]

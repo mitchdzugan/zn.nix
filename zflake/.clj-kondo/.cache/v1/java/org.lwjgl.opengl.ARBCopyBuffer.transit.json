@@ -1,1 +1,0 @@
-["^ ","~:members",["^ ","GL_COPY_READ_BUFFER",["~#set",[["^ ","~:flags",["^2",["~:public","~:static","~:field","~:final"]]]]],"GL_COPY_WRITE_BUFFER",["^2",[["^ ","^3",["^2",["^4","^5","^6","^7"]]]]],"glCopyBufferSubData",["^2",[["^ ","^3",["^2",["~:method","^4","^5"]]]]]]]

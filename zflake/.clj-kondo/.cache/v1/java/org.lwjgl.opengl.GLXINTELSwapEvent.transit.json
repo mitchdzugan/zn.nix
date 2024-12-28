@@ -1,1 +1,0 @@
-["^ ","~:members",["^ ","GLX_BUFFER_SWAP_COMPLETE_INTEL_MASK",["~#set",[["^ ","~:flags",["^2",["~:public","~:static","~:field","~:final"]]]]],"GLX_EXCHANGE_COMPLETE_INTEL",["^2",[["^ ","^3",["^2",["^4","^5","^6","^7"]]]]],"GLX_COPY_COMPLETE_INTEL",["^2",[["^ ","^3",["^2",["^4","^5","^6","^7"]]]]],"GLX_FLIP_COMPLETE_INTEL",["^2",[["^ ","^3",["^2",["^4","^5","^6","^7"]]]]]]]

@@ -1,1 +1,0 @@
-["^ ","~:members",["^ ","GL_STENCIL_TAG_BITS_EXT",["~#set",[["^ ","~:flags",["^2",["~:public","~:static","~:field","~:final"]]]]],"GL_STENCIL_CLEAR_TAG_VALUE_EXT",["^2",[["^ ","^3",["^2",["^4","^5","^6","^7"]]]]],"glStencilClearTagEXT",["^2",[["^ ","^3",["^2",["~:method","^4","^5"]]]]]]]

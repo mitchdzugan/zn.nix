@@ -1,1 +1,0 @@
-["^ ","~:members",["^ ","GL_STENCIL_TEST_TWO_SIDE_EXT",["~#set",[["^ ","~:flags",["^2",["~:public","~:static","~:field","~:final"]]]]],"GL_ACTIVE_STENCIL_FACE_EXT",["^2",[["^ ","^3",["^2",["^4","^5","^6","^7"]]]]],"glActiveStencilFaceEXT",["^2",[["^ ","^3",["^2",["~:method","^4","^5"]]]]]]]
