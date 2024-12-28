@@ -1,11 +1,11 @@
-(ns zflake
+(ns zflake.core
   (:require [babashka.fs :as fs]
             [babashka.process :refer [shell]]
             [cheshire.core :as json]
             [clojure.walk :as walk]
             [clojure.string :as str])
   (:gen-class))
-; (set! *warn-on-reflection* true)
+(set! *warn-on-reflection* true)
 
 (def s9n-bin (System/getenv "ZFLAKE_S9N_BIN"))
 (def bash-bin (System/getenv "ZFLAKE_BASH_BIN"))
@@ -23,6 +23,7 @@
           res)))))
 
 (defmacro defn-once [name & rest]
+  {:clj-kondo/lint-as 'clojure.core/def}
   `(def ~name (once (fn [] ~@rest))))
 
 (defn-once get-nix-system
@@ -94,4 +95,4 @@
     ("r" "run" ":r" ":run") (zflake-run rest)
     (zflake-run all)))
 
-(defn -main [& args] (zflake args))
+(defn -main [& args] (zflake args) (shutdown-agents))

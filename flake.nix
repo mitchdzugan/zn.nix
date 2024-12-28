@@ -169,8 +169,20 @@
             {
               projectSrc = ./zflake/.;
               name = "org.mitchdzugan/zflake";
-              main-ns = "zflake";
+              main-ns = "zflake.core";
               builder-extra-inputs = [];
+              nativeImage.enable = true;
+              nativeImage.extraNativeImageBuildArgs = [
+                "--initialize-at-build-time"
+                "-J-Dclojure.compiler.direct-linking=true"
+                "--native-image-info"
+                "-march=compatibility"
+                "-H:+JNI"
+                "-H:+ReportExceptionStackTraces"
+                "--report-unsupported-elements-at-runtime"
+                "--verbose"
+                "-H:DashboardDump=target/dashboard-dump"
+              ];
             }
           ];
         };
