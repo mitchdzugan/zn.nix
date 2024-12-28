@@ -61,6 +61,7 @@
       (try (catch Exception _ nil))))
 
 (defn-once get-zflake-dev
+  (println "retrieving nix data")
   (let [nix-system (get-nix-system)
         n-getFlake (str "(builtins.getFlake \"" (fs/cwd) "\")")
         n-zflakeDev (str ".outputs.zflake-dev." nix-system)
@@ -85,6 +86,7 @@
                                            (get s9n "taskname"))
                                :execd (str (fs/cwd))}))
                      (partial map)))
+        ((fn [zflake-dev] (println "nix data retrieved") zflake-dev))
         (try (catch Exception _ nil)))))
 
 (defn zflake-s9n-cmd [cmd {:keys [execd taskname runsh] :as cfg}]
