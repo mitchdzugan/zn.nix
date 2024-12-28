@@ -175,8 +175,8 @@
           ];
         };
         zflake2 = uuWrap "flake.nix" (bashW.writeBashScriptBin'
-          [s9n-raw zflake-unwrapped]
           "zflake2"
+          [s9n-raw zflake-unwrapped]
           ''
             export ZFLAKE_S9N_BIN="${s9n-raw}/bin/s9n-raw"
             export ZFLAKE_BASH_BIN="${pkgs.bash}/bin/bash"
