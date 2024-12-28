@@ -3,15 +3,42 @@
             [babashka.process :refer [shell]]
             [cheshire.core :as json]
             [clojure.walk :as walk]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [jansi-clj.core :as jansi])
   (:gen-class))
 (set! *warn-on-reflection* true)
 
 (def ^:dynamic *s9n-bin* nil)
 (def ^:dynamic *bash-bin* nil)
 
+(def jansi-map {:black jansi/black
+                :black-bright jansi/black-bright
+                :white-bright jansi/white-bright
+                :yellow jansi/yellow
+                :yellow-bright jansi/yellow-bright
+                :magenta-bright jansi/magenta-bright
+                :cyan-bright jansi/cyan-bright
+                :magenta jansi/magenta
+                :cyan jansi/cyan
+                :green jansi/green
+                :red jansi/red
+                :b jansi/bold
+                :i jansi/italic})
+
+(defn colorize [& sections]
+  (->> sections
+       (map (fn [[s & styles]] (reduce #((get jansi-map %2) %1) s styles)))
+       (str/join "")))
+
 (defn sh-v [& cmd]
-  (println (str "  " (str/join " " cmd)))
+  (->> [["⦗" :b :black-bright]
+        ["zflake/" :b :yellow-bright]
+        ["exec" :b :magenta-bright]
+        ["⦘" :b :black-bright]
+        [": " :b :black-bright]
+        [(str/join " " cmd) :green]]
+       (apply colorize)
+       println)
   (apply shell cmd))
 
 (defn once [f]
@@ -68,7 +95,7 @@
            *s9n-bin* execd taskname runsh cmd)))
 
 (defn zflake-s9n-cmds [cmd & _]
-  (println (str "[zflake] :dev :" cmd))
+  (get-zflake-dev)
   (let [ask-cfg #(get (get-zflake-dev) (apply str %&))]
     (shell *bash-bin* "-c" (ask-cfg "pre-" cmd))
     (doseq [s9n (ask-cfg "singletons")] (zflake-s9n-cmd cmd s9n))
@@ -86,7 +113,6 @@
     (zflake-dev-status all)))
 
 (defn zflake-run [[a1 & rest]]
-  (println "[zflake] :run")
   (apply sh-v "nix" "run" (str ".#" a1) rest))
 
 (defn zflake [[a1 & rest :as all]]
