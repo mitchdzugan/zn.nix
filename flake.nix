@@ -102,18 +102,27 @@
             }
 
             case "$cmd" in
+              "u" | "up")
+                if [ "$is_active" = "1" ]; then
+                  info already up "{:pid $pid}"
+                  exit 0
+                fi;;
+              "d" | "down")
+                if [ ! "$is_active" = "1" ]; then
+                  info already down
+                  exit 0
+                fi;;
+            esac
+
+            bash -c "$ZFLAKE_CMD_PRE"
+            case "$cmd" in
               "s" | "status")
                 ia_edn="$([ -z \"$is_active\" ] && echo true || echo false)"
                 info "status"
                 echo "{:pid $pid"
                 echo " :active? $ia_edn"
-                echo "}"
-                ;;
+                echo "}";;
               "u" | "up")
-                if [ "$is_active" = "1" ]; then
-                  info already up "{:pid $pid}"
-                  exit 0
-                fi
                 info starting up
                 pid_confirm="confirm-$ts-$pidself"
                 rm -rf "$taskd/by-pid"
@@ -137,10 +146,6 @@
                 echo $pid > "$taskd/pid"
                 info is up "{:pid $pid}";;
               "d" | "down")
-                if [ ! "$is_active" = "1" ]; then
-                  info already down
-                  exit 0
-                fi
                 info shutting down
                 pkill -P $pid
                 info is down;;
@@ -155,6 +160,7 @@
               *)
                 echo "unknown command - $cmd"
                 exit 1
+              bash -c "$ZFLAKE_CMD_POST"
             esac
           '';
         zflake = uuWrap "flake.nix" (bbW.writeBbScriptBin'
@@ -196,7 +202,8 @@
                     ks (mapcat #(-> [(str "post-" %1) (str "pre-" %1)])
                                ["up" "down" "status"])
                     n-inits (str "{" (reduce #(str %1 %2 "=\"\";") "" ks) "}")
-                    n-s9nMap (str "(builtins.map (p: p.name) z.singletons)")
+                    n-s9nMapFn "(s: s // { taskname = s.pkg.name; })"
+                    n-s9nMap (str "(builtins.map " n-s9nMapFn " z.singletons)")
                     n-attrsFinal (str "{singletons=" n-s9nMap ";}")
                     n-fixFn (str "(z: (" n-inits " // z // " n-attrsFinal "))")
                     n (str "(" n-fixFn n-zflakeDevSys ")")]
@@ -205,15 +212,19 @@
                     :out
                     json/parse-string
                     (update "singletons"
-                            (->> (fn [name]
-                                   {:runsh (str "nix run .#" name)
-                                    :taskname name
-                                    :execd (str (fs/cwd))})
+                            (->> (fn [s9n]
+                                   (merge (walk/keywordize-keys s9n)
+                                          {:runsh (str "nix run .#"
+                                                       (get s9n "taskname"))
+                                           :execd (str (fs/cwd))}))
                                  (partial map)))
                     (try (catch Exception _ nil)))))
 
-            (defn zflake-s9n-cmd [cmd {:keys [execd taskname runsh]}]
-              (shell "${s9n-raw}/bin/s9n-raw" execd taskname runsh cmd))
+            (defn zflake-s9n-cmd [cmd {:keys [execd taskname runsh] :as cfg}]
+              (let [pre (get cfg (keyword (str "pre-" cmd)) "")
+                    post (get cfg (keyword (str "post-" cmd)) "")]
+                (shell {:extra-env {"ZFLAKE_CMD_PRE" pre "ZFLAKE_CMD_POST" post}}
+                       "${s9n-raw}/bin/s9n-raw" execd taskname runsh cmd)))
 
             (defn zflake-s9n-cmds [cmd & _]
               (println (str "[zflake] :dev :" cmd))
