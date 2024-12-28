@@ -163,6 +163,26 @@
               bash -c "$ZFLAKE_CMD_POST"
             esac
           '';
+        zflake-unwrapped = clj-nix.lib.mkCljApp {
+          pkgs = pkgs;
+          modules = [
+            {
+              projectSrc = ./zflake/.;
+              name = "org.mitchdzugan/zflake";
+              main-ns = "zflake";
+              builder-extra-inputs = [];
+            }
+          ];
+        };
+        zflake2 = uuWrap "flake.nix" (bashW.writeBashScriptBin'
+          [s9n-raw zflake-unwrapped]
+          "zflake2"
+          ''
+            export ZFLAKE_S9N_BIN="${s9n-raw}/bin/s9n-raw"
+            export ZFLAKE_BASH_BIN="${pkgs.bash}/bin/bash"
+            "${zflake-unwrapped}/bin/zflake" $@
+          ''
+        );
         zflake = uuWrap "flake.nix" (bbW.writeBbScriptBin'
           "zflake"
           [s9n-raw pkgs.bash]
@@ -282,6 +302,7 @@
       s9n = s9n;
       s9nFlakeRoot = pkg: uuWrap "flake.nix" (s9n pkg);
       zflake = zflake;
+      zflake2 = zflake2;
     });
   };
 }
