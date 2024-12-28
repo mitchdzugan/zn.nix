@@ -102,20 +102,26 @@
               shift
               BLACK_BRIGHT='\033[0;90m'
               YELLOW_BRIGHT='\033[0;93m'
+              BLUE='\033[0;34m'
+              MAGENTA='\033[0;35m'
               MAGENTA_BRIGHT='\033[0;95m'
+              CYAN='\033[0;36m'
               BOLD='\033[1m'
-              function c () {
+              outs=""
+              function add_to_out () {
                 content="$1"
                 shift
                 NC='\033[0m'
-                echo -e "$@$content$NC"
+                for st in "$@"; do outs="$outs$st"; done
+                outs="$outs$content$NC"
               }
-              outs=""
-              outs="$outs$(c "⦗" $BLACK_BRIGHT $BOLD)"
-              outs="$outs$(c "s9n/" $YELLOW_BRIGHT $BOLD)"
-              outs="$outs$(c "$m" $MAGENTA_BRIGHT $BOLD)"
-              outs="$outs$(c "⦘: " $BLACK_BRIGHT $BOLD)"
-              >&2 printf "$outs\n"
+              add_to_out "⦗" $BLACK_BRIGHT $BOLD
+              add_to_out "s9n/" $YELLOW_BRIGHT $BOLD
+              add_to_out "$m" $MAGENTA_BRIGHT $BOLD
+              add_to_out "⦘" $BLACK_BRIGHT $BOLD
+              add_to_out "\\$(basename $execd)" $CYAN
+              add_to_out " :$taskname" $MAGENTA
+              >&2 echo -e "$outs $@"
               # >&2 echo "[s9n/$m]#$(basename $execd) :$taskname $@"
             }
 
