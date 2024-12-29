@@ -141,7 +141,7 @@
             bash -c "$ZFLAKE_CMD_PRE"
             case "$cmd" in
               "s" | "status")
-                ia_edn="$([ -z \"$is_active\" ] && echo true || echo false)"
+                ia_edn="$([ "$is_active" = "1" ] && echo true || echo false)"
                 info status
                 echo "{:pid $pid"
                 echo " :active? $ia_edn"
