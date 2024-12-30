@@ -161,7 +161,7 @@
                 echo "cd \"$execd\""                  >> "$pwd/exe"
                 echo "cat \"$pwd/in\" | $runsh \\   " >> "$pwd/exe"
                 echo "  2> \"$pwd/err\" \\"           >> "$pwd/exe"
-                echo "  1> \"$pwd/out\" \\"           >> "$pwd/exe"
+                echo "  1> \"$pwd/out\""              >> "$pwd/exe"
                 echo "echo \"\$?\" > \"$pwd/status\"" >> "$pwd/exe"
                 echo "$cubin/date +%s > \"$pwd/end\"" >> "$pwd/exe"
                 chmod +x "$pwd/exe"
