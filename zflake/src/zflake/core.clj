@@ -1,5 +1,6 @@
 (ns zflake.core
-  (:require [babashka.fs :as fs]
+  (:require [clojure.core.async :as a]
+            [babashka.fs :as fs]
             [babashka.process :refer [shell]]
             [cheshire.core :as json]
             [clojure.walk :as walk]
@@ -60,8 +61,14 @@
       :out
       (try (catch Exception _ nil))))
 
-(defn-once get-zflake-dev
-  (println "retrieving nix data")
+(defn re-println [& args]
+  (print (jansi/erase-line))
+  (print (jansi/cursor-up 1))
+  (print (jansi/erase-line))
+  (apply println args))
+
+(defn get-zflake-dev-impl
+  []
   (let [nix-system (get-nix-system)
         n-getFlake (str "(builtins.getFlake \"" (fs/cwd) "\")")
         n-zflakeDev (str ".outputs.zflake-dev." nix-system)
@@ -75,6 +82,7 @@
         n-attrsFinal (str "{singletons=" n-s9nMap ";}")
         n-fixFn (str "(z: (" n-inits " // z // " n-attrsFinal "))")
         n (str "(" n-fixFn n-zflakeDevSys ")")]
+    (Thread/sleep 2000)
     (-> {:out :string :err :string}
         (shell "nix" "eval" "--impure" "--json" "--expr" n)
         :out
@@ -86,8 +94,39 @@
                                            (get s9n "taskname"))
                                :execd (str (fs/cwd))}))
                      (partial map)))
-        ((fn [zflake-dev] (println "nix data retrieved") zflake-dev))
         (try (catch Exception _ nil)))))
+
+(defn-once get-zflake-dev
+  (let [lchars (str "⡀⡁⡂⡃⡄⡅⡆⡇⡈⡉⡊⡋⡌⡍⡎⡏⡐⡑⡒⡓⡔⡕⡖⡗⡘⡙⡚⡛⡜⡝⡞⡟⡠⡡⡢⡣⡤⡥⡦⡧⡨⡩⡪⡫⡬⡭⡮⡯⡰⡱⡲⡳⡴⡵"
+                    "⡶⡷⡸⡹⡺⡻⡼⡽⡾⡿⢀⢁⢂⢃⢄⢅⢆⢇⢈⢉⢊⢋⢌⢍⢎⢏⢐⢑⢒⢓⢔⢕⢖⢗⢘⢙⢚⢛⢜⢝⢞⢟⢠⢡⢢⢣⢤⢥⢦⢧⢨⢩⢪⢫"
+                    "⢬⢭⢮⢯⢰⢱⢲⢳⢴⢵⢶⢷⢸⢹⢺⢻⢼⢽⢾⢿⣀⣁⣂⣃⣄⣅⣆⣇⣈⣉⣊⣋⣌⣍⣎⣏⣐⣑⣒⣓⣔⣕⣖⣗⣘⣙⣚⣛⣜⣝⣞⣟⣠⣡"
+                    "⣢⣣⣤⣥⣦⣧⣨⣩⣪⣫⣬⣭⣮⣯⣰⣱⣲⣳⣴⣵⣶⣷⣸⣹⣺⣻⣼⣽⣾⣿")
+        s-map (->> lchars
+                   (into [])
+                   shuffle
+                   (map-indexed (fn [& args] args))
+                   (reduce #(apply assoc %1 %2) {:done "✔"}))
+        out #((if %1 re-println println)
+              (colorize ["⦗" :b :black-bright]
+                        ["zflake" :b :yellow-bright]
+                        ["⦘" :b :black-bright]
+                        [" retreiving nix data "]
+                        ["[" :b :black-bright]
+                        [(get s-map %2) :b (if (= :done %2) :green :yellow)]
+                        ["]" :b :black-bright]))
+        done? (atom false)
+        tc (a/chan)
+        vc (a/chan)]
+    (a/go (while (not @done?) (Thread/sleep 200) (a/>! tc true)))
+    (a/go (a/>! vc (get-zflake-dev-impl)) (reset! done? true))
+    (a/<!!
+      (a/go
+        (out false 0)
+        (loop [i 1]
+          (out true i)
+          (let [inc-i #(mod (inc i) (count lchars))
+                [v c] (a/alts! [tc vc])]
+            (if (= c vc) (do (out true :done) v) (recur (inc-i)))))))))
 
 (defn zflake-s9n-cmd [cmd {:keys [execd taskname runsh] :as cfg}]
   (let [pre (get cfg (keyword (str "pre-" cmd)) "")

@@ -97,21 +97,22 @@
               fi
             fi
 
+            BLACK_BRIGHT='\033[0;90m'
+            YELLOW_BRIGHT='\033[0;93m'
+            BLUE='\033[0;34m'
+            MAGENTA='\033[0;35m'
+            MAGENTA_BRIGHT='\033[0;95m'
+            CYAN='\033[0;36m'
+            BOLD='\033[1m'
+            NC='\033[0m'
+
             function info () {
               m="$1"
               shift
-              BLACK_BRIGHT='\033[0;90m'
-              YELLOW_BRIGHT='\033[0;93m'
-              BLUE='\033[0;34m'
-              MAGENTA='\033[0;35m'
-              MAGENTA_BRIGHT='\033[0;95m'
-              CYAN='\033[0;36m'
-              BOLD='\033[1m'
               outs=""
               function add_to_out () {
                 content="$1"
                 shift
-                NC='\033[0m'
                 for st in "$@"; do outs="$outs$st"; done
                 outs="$outs$content$NC"
               }
@@ -142,10 +143,11 @@
             case "$cmd" in
               "s" | "status")
                 ia_edn="$([ "$is_active" = "1" ] && echo true || echo false)"
-                info status
-                echo "{:pid $pid"
-                echo " :active? $ia_edn"
-                echo "}";;
+                if [ "$is_active" = "1" ]; then
+                  info status active $MAGENTA :pid $NC $pid
+                else
+                  info status inactive
+                fi;;
               "u" | "up")
                 info up initiating
                 pid_confirm="confirm-$ts-$pidself"
@@ -155,17 +157,19 @@
                 mkfifo "$pwd/in"
                 touch "$pwd/out"
                 touch "$pwd/err"
-                echo "#!${pkgs.bash}/bin/bash"      > "$pwd/exe"
-                echo "cd \"$execd\""               >> "$pwd/exe"
-                echo "cat \"$pwd/in\" | $runsh \\" >> "$pwd/exe"
-                echo "  2> \"$pwd/err\" \\"        >> "$pwd/exe"
-                echo "  1> \"$pwd/out\" \\"        >> "$pwd/exe"
+                echo "#!${pkgs.bash}/bin/bash"         > "$pwd/exe"
+                echo "cd \"$execd\""                  >> "$pwd/exe"
+                echo "cat \"$pwd/in\" | $runsh \\   " >> "$pwd/exe"
+                echo "  2> \"$pwd/err\" \\"           >> "$pwd/exe"
+                echo "  1> \"$pwd/out\" \\"           >> "$pwd/exe"
+                echo "echo \"\$?\" > \"$pwd/status\"" >> "$pwd/exe"
+                echo "$cubin/date +%s > \"$pwd/end\"" >> "$pwd/exe"
                 chmod +x "$pwd/exe"
                 ${pkgs.bash}/bin/bash -c "$pwd/exe $pid_confirm" &
                 pid=$!
                 disown $pid
                 echo $pid_confirm > "$pwd/pid-confirm"
-                echo $ts > "$pwd/started"
+                echo $ts > "$pwd/start"
                 ln -s "$pwd" "$taskd/by-pid/$pid"
                 echo $pid > "$taskd/pid"
                 info up completed "{:pid $pid}";;
