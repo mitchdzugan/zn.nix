@@ -82,7 +82,6 @@
         n-attrsFinal (str "{singletons=" n-s9nMap ";}")
         n-fixFn (str "(z: (" n-inits " // z // " n-attrsFinal "))")
         n (str "(" n-fixFn n-zflakeDevSys ")")]
-    (Thread/sleep 2000)
     (-> {:out :string :err :string}
         (shell "nix" "eval" "--impure" "--json" "--expr" n)
         :out
