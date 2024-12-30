@@ -93,7 +93,7 @@
                                            (get s9n "taskname"))
                                :execd (str (fs/cwd))}))
                      (partial map)))
-        (try (catch Exception _ nil)))))
+        (try (catch Exception e (println e) {})))))
 
 (defn-once get-zflake-dev
   (let [lchars (str "⡀⡁⡂⡃⡄⡅⡆⡇⡈⡉⡊⡋⡌⡍⡎⡏⡐⡑⡒⡓⡔⡕⡖⡗⡘⡙⡚⡛⡜⡝⡞⡟⡠⡡⡢⡣⡤⡥⡦⡧⡨⡩⡪⡫⡬⡭⡮⡯⡰⡱⡲⡳⡴⡵"
