@@ -103,6 +103,102 @@
                 (partial map)))
       (try (catch Exception e (println e) {})))))
 
+(def t true)
+(def f false)
+(def bpairs
+  [[[f f f f f f] " "]
+   [[t f f f f f] "🬀"]
+   [[f t f f f f] "🬁"]
+   [[t t f f f f] "🬂"]
+   [[f f t f f f] "🬃"]
+   [[t f t f f f] "🬄"]
+   [[f t t f f f] "🬅"]
+   [[t t t f f f] "🬆"]
+   [[f f f t f f] "🬇"]
+   [[t f f t f f] "🬈"]
+   [[f t f t f f] "🬉"]
+   [[t t f t f f] "🬊"]
+   [[f f t t f f] "🬋"]
+   [[t f t t f f] "🬌"]
+   [[f t t t f f] "🬍"]
+   [[t t t t f f] "🬎"]
+   [[f f f f t f] "🬏"]
+   [[t f f f t f] "🬐"]
+   [[f t f f t f] "🬑"]
+   [[t t f f t f] "🬒"]
+   [[f f t f t f] "🬓"]
+   [[t f t f t f] "▌"]
+   [[f t t f t f] "🬔"]
+   [[t t t f t f] "🬕"]
+   [[f f f t t f] "🬖"]
+   [[t f f t t f] "🬗"]
+   [[f t f t t f] "🬘"]
+   [[t t f t t f] "🬙"]
+   [[f f t t t f] "🬚"]
+   [[t f t t t f] "🬛"]
+   [[f t t t t f] "🬜"]
+   [[t t t t t f] "🬝"]
+   [[f f f f f t] "🬞"]
+   [[t f f f f t] "🬟"]
+   [[f t f f f t] "🬠"]
+   [[t t f f f t] "🬡"]
+   [[f f t f f t] "🬢"]
+   [[t f t f f t] "🬣"]
+   [[f t t f f t] "🬤"]
+   [[t t t f f t] "🬥"]
+   [[f f f t f t] "🬦"]
+   [[t f f t f t] "🬧"]
+   [[f t f t f t] "▐"]
+   [[t t f t f t] "🬨"]
+   [[f f t t f t] "🬩"]
+   [[t f t t f t] "🬪"]
+   [[f t t t f t] "🬫"]
+   [[t t t t f t] "🬬"]
+   [[f f f f t t] "🬭"]
+   [[t f f f t t] "🬮"]
+   [[f t f f t t] "🬯"]
+   [[t t f f t t] "🬰"]
+   [[f f t f t t] "🬱"]
+   [[t f t f t t] "🬲"]
+   [[f t t f t t] "🬳"]
+   [[t t t f t t] "🬴"]
+   [[f f f t t t] "🬵"]
+   [[t f f t t t] "🬶"]
+   [[f t f t t t] "🬷"]
+   [[t t f t t t] "🬸"]
+   [[f f t t t t] "🬹"]
+   [[t f t t t t] "🬺"]
+   [[f t t t t t] "🬻"]
+   [[t t t t t t] "█"]])
+
+(def by-vec (into {} bpairs))
+(def by-bc (into {} (map #(into [] (reverse %1)) bpairs)))
+
+(defn rand-b [] (< (rand) 0.5))
+(defn next-loading-str [curr-]
+  (let [curr (or curr- " 🬋 ")
+        c1 (subs curr 0 1)
+        c2 (subs curr 1 3)
+        c3 (subs curr 3 4)
+        v1 (get by-bc c1)
+        v2 (get by-bc c2)
+        v3 (get by-bc c3)
+        f1 [(nth v1 1) (nth v2 0)
+            (nth v1 3) (nth v2 2)
+            (nth v1 5) (nth v2 4)]
+        f2 [(rand-b) (rand-b)
+            (not (nth v2 3)) (not (nth v2 3))
+            (rand-b) (rand-b)]
+        f3 [(nth v2 1) (nth v3 0)
+            (nth v2 3) (nth v3 2)
+            (nth v2 5) (nth v3 4)]]
+    (println "..")
+    (println f1 (json/generate-string [c1 c2 c3]))
+    (println f2)
+    (println f3)
+    (println "..")
+    (str (get by-vec f1) (get by-vec f2) (get by-vec f3))))
+
 (def next-loading
   ((fn []
      (let [end? #(= 0 (+ (* %1 %1) (* -3 %1) 2))
@@ -139,15 +235,24 @@
                             lkup (->> legal (map :c) (into []))
                             num (count lkup)]
                         [c (fn [] (nth lkup (int (* (rand) num))))])))
-               (into {}))]
+               (into {}))
+            get-next-by-c {" " #(-> "🮕")
+                           "🮕" #(-> "🮖")
+                           "🮖" #(-> "🮘")
+                           "🮘" #(-> "🮙")
+                           "🮙" #(-> "🮕")
+                           }]
        (fn [curr] ((get get-next-by-c curr #(-> " "))))))))
 
 (defn-once
   get-zflake-dev
-  (let [s* (atom {0 [[" " :b :yellow] [" " :b :yellow] [" " :b :yellow]]
+  (let [s* (atom {
+                  ; 0 [[" " :b :yellow] [" " :b :yellow] [" " :b :yellow]]
+                  0 [[(next-loading-str nil) :b :yellow]]
                   :done [["🭪" :i :yellow] ["✔" :b :green] ["🭨" :i :yellow]]})
         -impl (fn [k]
-                (let [[_ a b] (get @s* (dec k))]
+                (update-in (get @s* (dec k)) [0 0] next-loading-str)
+                #_(let [[_ a b] (get @s* (dec k))]
                   [a b (update b 0 next-loading)]))
         styled #(let [r (or (get @s* %1) (-impl %1))]
                   (swap! s* assoc %1 r)
@@ -163,7 +268,7 @@
         done? (atom false)
         tc (a/chan)
         vc (a/chan)]
-    (a/go (while (not @done?) (Thread/sleep 90) (a/>! tc true)))
+    (a/go (while (not @done?) (Thread/sleep 1190) (a/>! tc true)))
     (a/go (a/>! vc (get-zflake-dev-impl)) (reset! done? true))
     (a/<!! (a/go (out false 0)
                  (loop [i 1]
