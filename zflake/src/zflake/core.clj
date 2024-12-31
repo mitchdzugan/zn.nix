@@ -186,9 +186,9 @@
             (nth v1 3) (nth v2 2)
             (nth v1 5) (nth v2 4)]
         f2v (rand-b)
-        f2 [f2v f2v
+        f2 [(not f2v) f2v
             (not (nth v2 3)) (not (nth v2 3))
-            f2v f2v]
+            (not f2v) f2v]
         f3 [(nth v2 1) (nth v3 0)
             (nth v2 3) (nth v3 2)
             (nth v2 5) (nth v3 4)]]
