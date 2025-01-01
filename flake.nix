@@ -192,13 +192,13 @@
               bash -c "$ZFLAKE_CMD_POST"
             esac
           '';
-        zflake-unwrapped = clj-nix.lib.mkCljApp {
+        mkCljNative = psrc: name: (clj-nix.lib.mkCljApp {
           pkgs = pkgs;
           modules = [
             {
-              projectSrc = ./zflake/.;
-              name = "org.mitchdzugan/zflake";
-              main-ns = "zflake.core";
+              projectSrc = psrc;
+              name = "org.mitchdzugan/${name}";
+              main-ns = "${name}.core";
               builder-extra-inputs = [];
               nativeImage.enable = true;
               nativeImage.extraNativeImageBuildArgs = [
@@ -214,7 +214,9 @@
               ];
             }
           ];
-        };
+        });
+        wait-for = mkCljNative ./wait-for/. "wait-for";
+        zflake-unwrapped = mkCljNative ./zflake/. "zflake";
         zflake = uuWrap "flake.nix" (bashW.writeBashScriptBin'
           "zflake"
           [s9n-raw zflake-unwrapped]
@@ -248,6 +250,7 @@
       s9n = s9n;
       s9nFlakeRoot = pkg: uuWrap "flake.nix" (s9n pkg);
       zflake = zflake;
+      wait-for = wait-for;
     });
   };
 }
