@@ -196,7 +196,7 @@
         mkScript-add-cljlib = dest: ''
           mkdir -p ${dest}/z/spinner
           function add_clj () {
-            cat "${zn.cljlib-path}/z/$1" > "./${dest}/z/$1"
+            cat "${cljlib-path}/z/$1" > "./${dest}/z/$1"
           }
           add_clj "spinner.clj"
           add_clj "spinner/worm.clj"
