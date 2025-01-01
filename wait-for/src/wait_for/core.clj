@@ -8,6 +8,7 @@
             [clojure.string :as str]
             [jansi-clj.core :as jansi])
   (:import (org.jline.reader LineReader LineReaderBuilder)
+           (org.jline.reader.impl LineReaderImpl)
            (org.jline.terminal Terminal TerminalBuilder))
   (:gen-class))
 (set! *warn-on-reflection* true)
@@ -336,16 +337,32 @@
 (defn tb-build [^TerminalBuilder tb] (.build tb))
 (defn lrb-build [^LineReaderBuilder lrb] (.build lrb))
 
+(defn enter-raw-mode [^Terminal t] (.enterRawMode t))
+(defn read-character [^LineReaderImpl lr] (.readCharacter lr))
+
+"q pressed: * not ready"
+"   * ready - enjoy :^)"
+"waiting for *"
+"  "
 (defn wait-for [{:keys [name shtest]}]
-  (let [tstyles {:err  [["🬲" :i :cyan] ["\\" :b :red  ] ["🬨" :i :magenta]]
-                 :done [["🬕" :i :cyan] ["✔" :b :green] ["🬷" :i :magenta]]}
+  (let [tstyles {:err  [[" " :i :cyan] ["✖" :b :red  ] [" " :i :magenta]]
+                 :done [[" " :i :cyan] ["✔" :b :green] [" " :i :magenta]]}
         out #(re-println
-                (colorize ["  waiting for"]
-                          [(str " " name " ") :b :blue]
-                          ["[" :b (case %1 :err :red :black-bright)]
+                (colorize [(apply colorize
+                                 (case %1
+                                   :err [["q" :b :yellow]
+                                         [" press: "]
+                                         [name :b :blue]
+                                         [" is not up "]]
+                                   :done [[name :b :blue]
+                                          [" now up - enjoy"]
+                                          [" :^) " :b :yellow-bright]]
+                                   [["       waiting for"]
+                                    [(str " " name " ") :b :blue]]))]
+                          ["[" :b :black-bright]
                           [(apply colorize (or (get tstyles %1)
                                                (loader-styled %1)))]
-                          ["]" :b (case %1 :err :red :black-bright)]
+                          ["]" :b :black-bright]
                           [(apply colorize (if (#{:err :done} %1)
                                              []
                                              [[" press "]
@@ -357,17 +374,17 @@
     (a/go (while (not @done?) (Thread/sleep 50) (a/>! tc true)))
     (a/go
       (let [terminal (-> (TerminalBuilder/builder) tb-system-true tb-build)]
-        (.enterRawMode terminal)
+        (enter-raw-mode terminal)
         (let [reader (-> (LineReaderBuilder/builder)
                          (lrb-terminal terminal)
                          lrb-build)]
-          (loop [] (when-not (= 113 (.readCharacter reader)) (recur)))
+          (loop [] (when-not (= 113 (read-character reader)) (recur)))
           (a/>! vc false))))
     (a/go
       (loop []
-        (try
-          (apply shell shtest)
-          (catch Exception _ (Thread/sleep 500) (recur))))
+        (let [succ? (try (apply shell shtest) true
+                         (catch Exception _ (Thread/sleep 500) false))]
+          (when-not succ? (recur))))
       (a/>! vc true)
       (reset! done? true))
     (a/<!! (a/go (println)
@@ -379,6 +396,6 @@
                        (recur (loader-next loader)))))))))
 
 (defn -main [& args]
-  (wait-for {:name "hi"
+  (wait-for {:name "nrepl"
              :shtest ["test" "-f" ".nrepl-port"]})
   (shutdown-agents))
