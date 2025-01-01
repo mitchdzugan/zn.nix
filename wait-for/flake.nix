@@ -18,12 +18,8 @@
           modules = [
             {
               builder-preBuild = ''
-                echo "WE ARE IN THE PREBUILD"
-                echo "WE ARE IN THE PREBUILD"
-                echo ${zn.cljlib-path}
-                echo "WE ARE IN THE PREBUILD"
-                echo "WE ARE IN THE PREBUILD"
-                ls -la
+                mkdir -p src
+                ln -sf "${zn.cljlib-path}/z" "./src/"
               '';
               projectSrc = ./.;
               name = "org.mitchdzugan/wait-for";
