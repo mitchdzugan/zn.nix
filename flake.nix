@@ -192,7 +192,7 @@
               bash -c "$ZFLAKE_CMD_POST"
             esac
           '';
-        mkCljNative = psrc: name: (clj-nix.lib.mkCljApp {
+        mkCljNative = psrc: name: eargs: (clj-nix.lib.mkCljApp {
           pkgs = pkgs;
           modules = [
             {
@@ -207,29 +207,30 @@
                 "--native-image-info"
                 "-march=compatibility"
                 "-H:+JNI"
-                "-H:JNIConfigurationFiles=${./.}/wait-for/.graal-support/jni.json"
-                "-H:ResourceConfigurationFiles=${./.}/wait-for/.graal-support/resources.json"
-                "--initialize-at-run-time=org.jline.nativ.Kernel32$MOUSE_EVENT_RECORD"
-                "--initialize-at-run-time=org.jline.nativ.Kernel32$COORD"
-                "--initialize-at-run-time=org.jline.nativ.Kernel32$FOCUS_EVENT_RECORD"
-                "--initialize-at-run-time=org.jline.nativ.Kernel32$CONSOLE_SCREEN_BUFFER_INFO"
-                "--initialize-at-run-time=org.jline.nativ.Kernel32$SMALL_RECT"
-                "--initialize-at-run-time=org.jline.nativ.Kernel32$WINDOW_BUFFER_SIZE_RECORD"
-                "--initialize-at-run-time=org.jline.nativ.Kernel32$MENU_EVENT_RECORD"
-                "--initialize-at-run-time=org.jline.nativ.Kernel32$CHAR_INFO"
-                "--initialize-at-run-time=org.jline.nativ.Kernel32$INPUT_RECORD"
-                "--initialize-at-run-time=org.jline.nativ.Kernel32$KEY_EVENT_RECORD"
-                "--initialize-at-run-time=org.jline.nativ.Kernel32"
                 "-H:+ReportExceptionStackTraces"
                 "--report-unsupported-elements-at-runtime"
                 "--verbose"
                 "-H:DashboardDump=target/dashboard-dump"
-              ];
+              ] ++ eargs;
             }
           ];
         });
-        wait-for = mkCljNative ./wait-for/. "wait-for";
-        zflake-unwrapped = mkCljNative ./zflake/. "zflake";
+        wait-for = mkCljNative ./wait-for/. "wait-for" [
+          "-H:JNIConfigurationFiles=${./.}/wait-for/.graal-support/jni.json"
+          "-H:ResourceConfigurationFiles=${./.}/wait-for/.graal-support/resources.json"
+          "--initialize-at-run-time=org.jline.nativ.Kernel32$MOUSE_EVENT_RECORD"
+          "--initialize-at-run-time=org.jline.nativ.Kernel32$COORD"
+          "--initialize-at-run-time=org.jline.nativ.Kernel32$FOCUS_EVENT_RECORD"
+          "--initialize-at-run-time=org.jline.nativ.Kernel32$CONSOLE_SCREEN_BUFFER_INFO"
+          "--initialize-at-run-time=org.jline.nativ.Kernel32$SMALL_RECT"
+          "--initialize-at-run-time=org.jline.nativ.Kernel32$WINDOW_BUFFER_SIZE_RECORD"
+          "--initialize-at-run-time=org.jline.nativ.Kernel32$MENU_EVENT_RECORD"
+          "--initialize-at-run-time=org.jline.nativ.Kernel32$CHAR_INFO"
+          "--initialize-at-run-time=org.jline.nativ.Kernel32$INPUT_RECORD"
+          "--initialize-at-run-time=org.jline.nativ.Kernel32$KEY_EVENT_RECORD"
+          "--initialize-at-run-time=org.jline.nativ.Kernel32"
+        ];
+        zflake-unwrapped = mkCljNative ./zflake/. "zflake" [];
         zflake = uuWrap "flake.nix" (bashW.writeBashScriptBin'
           "zflake"
           [s9n-raw zflake-unwrapped]
