@@ -192,10 +192,24 @@
               bash -c "$ZFLAKE_CMD_POST"
             esac
           '';
+        cljlib-path = "${./cljlib/.}";
+        mkScript-add-cljlib = dest: ''
+          mkdir -p ${dest}/z/spinner
+          function add_clj () {
+            cat "${zn.cljlib-path}/z/$1" > "./${dest}/z/$1"
+          }
+          add_clj "spinner.clj"
+          add_clj "spinner/worm.clj"
+          add_clj "spinner/conway.clj"
+          add_clj "style.clj"
+          add_clj "unicode.clj"
+          add_clj "util.clj"
+        '';
         mkCljNative = psrc: name: eargs: (clj-nix.lib.mkCljApp {
           pkgs = pkgs;
           modules = [
             {
+              builder-preBuild = mkScript-add-cljlib "src";
               projectSrc = psrc;
               name = "org.mitchdzugan/${name}";
               main-ns = "${name}.core";
@@ -265,7 +279,7 @@
       s9nFlakeRoot = pkg: uuWrap "flake.nix" (s9n pkg);
       zflake = zflake;
       wait-for = wait-for;
-      cljlib-path = "${./cljlib/.}";
+      mkScript-add-cljlib = mkScript-add-cljlib;
     });
   };
 }

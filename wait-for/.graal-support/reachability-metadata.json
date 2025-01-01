@@ -1305,6 +1305,15 @@
     },
     {
       "type": "wait_for.core__init"
+    },
+    {
+      "type": "z.spinner.worm__init"
+    },
+    {
+      "type": "z.spinner__init"
+    },
+    {
+      "type": "z.unicode__init"
     }
   ],
   "resources": [
@@ -1847,6 +1856,24 @@
     },
     {
       "glob": "wait_for/core__init.class"
+    },
+    {
+      "glob": "z/spinner.clj"
+    },
+    {
+      "glob": "z/spinner/worm.clj"
+    },
+    {
+      "glob": "z/spinner/worm__init.class"
+    },
+    {
+      "glob": "z/spinner__init.class"
+    },
+    {
+      "glob": "z/unicode.clj"
+    },
+    {
+      "glob": "z/unicode__init.class"
     }
   ],
   "bundles": [],

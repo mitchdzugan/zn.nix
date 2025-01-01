@@ -17,10 +17,7 @@
           pkgs = pkgs;
           modules = [
             {
-              builder-preBuild = ''
-                mkdir -p src
-                ln -sf "${zn.cljlib-path}/z" "./src/"
-              '';
+              builder-preBuild = zn.mkScript-add-cljlib "src";
               projectSrc = ./.;
               name = "org.mitchdzugan/wait-for";
               main-ns = "wait-for.core";
