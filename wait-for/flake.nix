@@ -17,6 +17,14 @@
           pkgs = pkgs;
           modules = [
             {
+              builder-preBuild = ''
+                echo "WE ARE IN THE PREBUILD"
+                echo "WE ARE IN THE PREBUILD"
+                echo ${zn.cljlib-path}
+                echo "WE ARE IN THE PREBUILD"
+                echo "WE ARE IN THE PREBUILD"
+                ls -la
+              '';
               projectSrc = ./.;
               name = "org.mitchdzugan/wait-for";
               main-ns = "wait-for.core";

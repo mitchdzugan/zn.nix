@@ -265,6 +265,7 @@
       s9nFlakeRoot = pkg: uuWrap "flake.nix" (s9n pkg);
       zflake = zflake;
       wait-for = wait-for;
+      cljlib-path = "${./cljlib/.}";
     });
   };
 }
