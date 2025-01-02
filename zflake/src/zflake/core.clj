@@ -18,16 +18,18 @@
 
 (defn sh-v
   [& cmd]
-  (->> [["⦗" :b :black-bright] ["zflake/" :b :yellow-bright]
-        ["exec" :b :magenta-bright] ["⦘" :b :black-bright]
-        [": " :b :black-bright] [(str/join " " cmd) :green]]
+  (->>
+    [["⦗" :b :black-bright] ["zflake/" :b :yellow-bright]
+     ["exec" :b :magenta-bright] ["⦘" :b :black-bright] [": " :b :black-bright]
+     [(str/join " " cmd) :green]]
     st/%*
     println)
   (apply shell cmd))
 
 (defn-once
   get-nix-system
-  (-> {:out :string :err :string}
+  (->
+    {:out :string :err :string}
     (shell "nix" "eval" "--impure" "--raw" "--expr" "builtins.currentSystem")
     :out
     (try (catch Exception _ nil))))
@@ -47,59 +49,63 @@
         n-attrsFinal (str "{singletons=" n-s9nMap ";}")
         n-fixFn (str "(z: (" n-inits " // z // " n-attrsFinal "))")
         n (str "(" n-fixFn n-zflakeDevSys ")")]
-    (-> {:out :string :err :string}
+    (->
+      {:out :string :err :string}
       (shell "nix" "eval" "--impure" "--json" "--expr" n)
       :out
       json/parse-string
       (update "singletons"
-              (->> (fn [s9n]
-                     (merge (walk/keywordize-keys s9n)
-                            {:runsh (str "nix run .#" (get s9n "taskname"))
-                             :execd (str (fs/cwd))}))
+              (->>
+                (fn [s9n]
+                  (merge (walk/keywordize-keys s9n)
+                         {:runsh (str "nix run .#" (get s9n "taskname"))
+                          :execd (str (fs/cwd))}))
                 (partial map)))
       (try (catch Exception e (println e) {})))))
 
 (defn-once nix-realize-extra-deps
-  []
-  (let [nix-system (get-nix-system)
-        n-getFlake (str "(builtins.getFlake \"" (fs/cwd) "\")")
-        n-zflakeExtraDeps (str ".outputs.zflake-dev." nix-system ".extra-deps")
-        n-zflakeExtraDepsFn (str "(f: f" n-zflakeExtraDeps ")")
-        n (str "(" n-zflakeExtraDepsFn n-getFlake ")")
-        shell-opts {:out :string :err :string}
-        ]
-    (-> (->> (shell shell-opts "nix-instantiate" "--impure" "--expr" n)
-             ((comp str/split-lines str/trim :out))
-             (apply shell shell-opts "nix-store" "--realize"))
-      (try true (catch Exception e (println e) false)))))
+           []
+           (let [nix-system (get-nix-system)
+                 n-getFlake (str "(builtins.getFlake \"" (fs/cwd) "\")")
+                 n-zflakeExtraDeps
+                   (str ".outputs.zflake-dev." nix-system ".extra-deps")
+                 n-zflakeExtraDepsFn (str "(f: f" n-zflakeExtraDeps ")")
+                 n (str "(" n-zflakeExtraDepsFn n-getFlake ")")
+                 shell-opts {:out :string :err :string}]
+             (->
+               (->>
+                 (shell shell-opts "nix-instantiate" "--impure" "--expr" n)
+                 ((comp str/split-lines str/trim :out))
+                 (apply shell shell-opts "nix-store" "--realize"))
+               (try true (catch Exception e (println e) false)))))
 
-(defn-once
-  get-zflake-dev
-  (let [tstyles {:done [["🭪" :i :yellow] ["✔" :b :green] ["🭨" :i :yellow]]}
-        out #(st/re-println
-                (st/%** ["⦗" :b :black-bright]
-                        ["zflake" :b :yellow-bright]
-                        ["⦘" :b :black-bright]
-                        [" retreiving nix data "]
-                        ["[" :b :black-bright]
-                        [(st/%* (or (get tstyles %1) (spinner/styled %1)))]
-                        ["]" :b :black-bright]))
-        done? (atom false)
-        tc (a/chan)
-        vc (a/chan)]
-    (a/go (while (not @done?) (Thread/sleep 120) (a/>! tc true)))
-    (a/go (get-nix-system)
-          (let [czflake-dev (a/go (get-zflake-dev-impl))]
-            (a/<! (a/go (nix-realize-extra-deps)))
-            (a/>! vc (a/<! czflake-dev)))
-          (reset! done? true))
-    (a/<!! (a/go (println)
-                 (loop [spinner (spinner/pre-style gol/spinner)]
-                   (out spinner)
-                   (let [[v c] (a/alts! [tc vc])]
-                     (if (= c vc)
-                      (do (out :done) v)
-                      (recur (spinner/step spinner)))))))))
+(defn-once get-zflake-dev
+           (let [tstyles {:done [["🭪" :i :yellow] ["✔" :b :green]
+                                 ["🭨" :i :yellow]]}
+                 out #(st/re-println (st/%** ["⦗" :b :black-bright]
+                                             ["zflake" :b :yellow-bright]
+                                             ["⦘" :b :black-bright]
+                                             [" retreiving nix data "]
+                                             ["[" :b :black-bright]
+                                             [(st/%* (or (get tstyles %1)
+                                                         (spinner/styled %1)))]
+                                             ["]" :b :black-bright]))
+                 done? (atom false)
+                 tc (a/chan)
+                 vc (a/chan)]
+             (a/go (while (not @done?) (Thread/sleep 120) (a/>! tc true)))
+             (a/go (get-nix-system)
+                   (let [czflake-dev (a/go (get-zflake-dev-impl))]
+                     (a/<! (a/go (nix-realize-extra-deps)))
+                     (a/>! vc (a/<! czflake-dev)))
+                   (reset! done? true))
+             (a/<!! (a/go (println)
+                          (loop [spinner (spinner/pre-style gol/spinner)]
+                            (out spinner)
+                            (let [[v c] (a/alts! [tc vc])]
+                              (if (= c vc)
+                                (do (out :done) v)
+                                (recur (spinner/step spinner)))))))))
 
 (defn zflake-s9n-cmd
   [cmd {:keys [execd taskname runsh] :as cfg}]

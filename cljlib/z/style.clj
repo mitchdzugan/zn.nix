@@ -2,7 +2,7 @@
   (:require [clojure.string :as str]
             [jansi-clj.core :as jansi]))
 
- (def jansi-map
+(def jansi-map
   {:black jansi/black
    :red jansi/red
    :yellow jansi/yellow
@@ -24,7 +24,8 @@
 
 (defn %*
   [sections]
-  (->> sections
+  (->>
+    sections
     (map (fn [[s & styles]] (reduce #((get jansi-map %2) %1) s styles)))
     (str/join "")))
 
