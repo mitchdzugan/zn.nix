@@ -251,8 +251,8 @@
         "rep": "rep"
       },
       "locked": {
-        "lastModified": 1735778298,
-        "narHash": "sha256-6hazH/k/2Iv82WBBseZMJkaMqhzi05SZ6Op52539GSc=",
+        "lastModified": 1735779001,
+        "narHash": "sha256-0fPMd1nuEt2UK05m3XzIPhTiHpb8qYlZefOrYbsFji0=",
         "path": "/home/dz/Projects/zn.nix",
         "type": "path"
       },

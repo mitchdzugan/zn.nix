@@ -3,6 +3,7 @@
         org.clojure/core.async               {:mvn/version "1.7.701"}
         babashka/process                     {:mvn/version "0.5.22"}
         babashka/fs                          {:mvn/version "0.5.23"}
+        org.babashka/cli                     {:mvn/version "0.8.62"}
         cheshire/cheshire                    {:mvn/version "5.13.0"}
         org.jline/jline                      {:mvn/version "3.26.3"}
         jansi-clj/jansi-clj                  {:mvn/version "1.0.3"}}
