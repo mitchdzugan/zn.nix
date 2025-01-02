@@ -251,17 +251,14 @@
         "rep": "rep"
       },
       "locked": {
-        "lastModified": 1735757682,
-        "narHash": "sha256-zTsXv38E+9kyj+9OPtX2Py6lIlv9BlbzIpUeMuawF4w=",
-        "owner": "mitchdzugan",
-        "repo": "zn.nix",
-        "rev": "0dacf420dd2ab7d3cc52968141b54779a7c8c5e9",
-        "type": "github"
+        "lastModified": 1735778298,
+        "narHash": "sha256-6hazH/k/2Iv82WBBseZMJkaMqhzi05SZ6Op52539GSc=",
+        "path": "/home/dz/Projects/zn.nix",
+        "type": "path"
       },
       "original": {
-        "owner": "mitchdzugan",
-        "repo": "zn.nix",
-        "type": "github"
+        "path": "/home/dz/Projects/zn.nix",
+        "type": "path"
       }
     }
   },

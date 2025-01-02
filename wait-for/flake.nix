@@ -2,7 +2,8 @@
   description = ">[z]< text renderer";
   inputs.nixpkgs.url = "nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
-  inputs.zn-nix.url = "github:mitchdzugan/zn.nix";
+  inputs.zn-nix.url = "path:/home/dz/Projects/zn.nix";
+  # inputs.zn-nix.url = "github:mitchdzugan/zn.nix";
   inputs.zn-nix.inputs.nixpkgs.follows = "nixpkgs";
   outputs = { self, nixpkgs, zn-nix, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
