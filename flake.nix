@@ -310,6 +310,16 @@
       wait-for = wait-for;
       mkScript-add-cljlib = mkScript-add-cljlib;
       mk-enhanced-nrepl = mk-enhanced-nrepl;
+      reply = (uuWrap ".nrepl-port" (bashW.writeBashScriptBin'
+        "reply"
+        [pkgs.clojure]
+        ''
+          ${pkgs.clojure}/bin/clojure \
+            -Sdeps '{:deps {reply/reply {:mvn/version "0.5.0"}}}' \
+            -M -m reply.main --attach $(cat .nrepl-port) \
+            $@
+        ''
+      ));
     });
   };
 }
