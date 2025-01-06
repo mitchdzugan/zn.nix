@@ -291,6 +291,7 @@
           ''
         ));
       in (bbW // bashW // {
+      mkScriptWriters = mkScriptWriters;
       mkLibPath = mkLibPath;
       mkCljApp = clj-nix.lib.mkCljApp;
       writePkgScriptBin = writePkgScriptBin;
