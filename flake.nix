@@ -306,6 +306,7 @@
       uuCljWrap = pkg: uuWrap "deps.edn" pkg;
       uuRustWrap = pkg: uuWrap "Cargo.toml" pkg;
       s9n = s9n;
+      s9n-raw = s9n-raw;
       s9nFlakeRoot = pkg: uuWrap "flake.nix" (s9n pkg);
       zflake = zflake;
       wait-for = wait-for;
