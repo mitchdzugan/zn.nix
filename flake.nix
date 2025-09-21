@@ -333,7 +333,7 @@
 	  sudo bash -c 'cd /etc/nixos && nix flake update && nixos-rebuild switch'
 	''
       );
-      nixosModules.wslConfiguration = (import ./os/wsl/configuration.nix { zn-nix = zn-nix; });
+      nixosModules.wslConfiguration = (import ./os/wsl/configuration.nix { nixRebuild = nixRebuild; });
     });
   };
 }

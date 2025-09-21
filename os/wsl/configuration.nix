@@ -5,7 +5,7 @@
 # NixOS-WSL specific options are documented on the NixOS-WSL repository:
 # https://github.com/nix-community/NixOS-WSL
 
-{ config, lib, pkgs, zn-nix, ... }:
+{ config, lib, pkgs, nixRebuild, ... }:
 
 let
   zn = zn-nix.mk-zn pkgs.system; 
@@ -25,6 +25,6 @@ in
     pkgs.gh
     pkgs.neovim
     pkgs.wget
-    zn.nixRebuild
+    nixRebuild
   ];
 }
