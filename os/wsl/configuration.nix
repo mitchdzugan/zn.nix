@@ -13,10 +13,11 @@
   wsl.defaultUser = "dz";
 
   environment.systemPackages = [
-    pkgs.wget
-    pkgs.neovim
+    pkgs.emacs
     pkgs.firefox
     pkgs.git
     pkgs.gh
+    pkgs.neovim
+    pkgs.wget
   ];
 }
