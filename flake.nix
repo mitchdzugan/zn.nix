@@ -322,6 +322,7 @@
             $@
         ''
       ));
+      nixosModules.wslConfiguration = import ./os/wsl/configuration.nix;
     });
   };
 }
