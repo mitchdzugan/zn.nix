@@ -322,6 +322,13 @@
             $@
         ''
       ));
+      nixRebuild = (bashW.writeBashScriptBin'
+        "nixRebuild"
+	[]
+	''
+	  sudo bash -c 'cd /etc/nixos && nix flake update && nixos-rebuild switch'
+	''
+      );
       nixosModules.wslConfiguration = import ./os/wsl/configuration.nix;
     });
   };
