@@ -17,6 +17,7 @@
   environment.systemPackages = [
     pkgs.emacs
     pkgs.firefox
+    pkgs.fish
     pkgs.git
     pkgs.gh
     pkgs.neovim
