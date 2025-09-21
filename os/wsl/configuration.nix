@@ -22,5 +22,6 @@
     pkgs.gh
     pkgs.neovim
     pkgs.wget
+    zn.nixRebuild
   ];
 }
