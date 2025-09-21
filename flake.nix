@@ -6,7 +6,7 @@
   inputs.jsim.inputs.nixpkgs.follows = "nixpkgs";
   inputs.rep.url = "github:eraserhd/rep";
   inputs.rep.inputs.nixpkgs.follows = "nixpkgs";
-  outputs = { self, nixpkgs, jsim, rep, clj-nix, ... }: {
+  outputs = { self, nixpkgs, jsim, rep, clj-nix, ... }@attrs: {
     mk-zn = system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
@@ -334,7 +334,7 @@
         ''
       ));
       nixRebuild = nixRebuild;
-      nixosModules.wslConfiguration = (import ./os/wsl/configuration.nix { nixRebuild = nixRebuild; });
+      nixosModules.wslConfiguration = (import ./os/wsl/configuration.nix (attrs // { nixRebuild = nixRebuild; }));
     });
   };
 }
