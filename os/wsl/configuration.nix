@@ -12,6 +12,8 @@
   wsl.enable = true;
   wsl.defaultUser = "dz";
 
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
   environment.systemPackages = [
     pkgs.emacs
     pkgs.firefox
