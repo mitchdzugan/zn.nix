@@ -28,6 +28,17 @@
         };
         bashW = mkScriptWriters "Bash" [pkgs.bash] "bash";
         bbW = mkScriptWriters "Bb" [pkgs.babashka] "bb";
+        nixRebuild = (bashW.writeBashScriptBin'
+          "nixRebuild"
+	  []
+	  ''
+	    echo 0 | $0
+	    echo 1 | $1
+	    echo 2 | $2
+	    echo 3 | $3
+	    sudo bash -c 'cd /etc/nixos && nix flake update && nixos-rebuild switch'
+	  ''
+        );
         uu = bashW.writeBashScriptBin "uu" ''
           base=$(pwd)
           while true; do
@@ -322,17 +333,7 @@
             $@
         ''
       ));
-      nixRebuild = (bashW.writeBashScriptBin'
-        "nixRebuild"
-	[]
-	''
-	  echo 0 | $0
-	  echo 1 | $1
-	  echo 2 | $2
-	  echo 3 | $3
-	  sudo bash -c 'cd /etc/nixos && nix flake update && nixos-rebuild switch'
-	''
-      );
+      nixRebuild = nixRebuild;
       nixosModules.wslConfiguration = (import ./os/wsl/configuration.nix { nixRebuild = nixRebuild; });
     });
   };
