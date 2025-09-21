@@ -5,8 +5,11 @@
 # NixOS-WSL specific options are documented on the NixOS-WSL repository:
 # https://github.com/nix-community/NixOS-WSL
 
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, zn-nix, ... }:
 
+let
+  zn = zn-nix.mk-zn pkgs.system; 
+in
 {
   system.stateVersion = "25.05"; # Did you read the comment?
   wsl.enable = true;
