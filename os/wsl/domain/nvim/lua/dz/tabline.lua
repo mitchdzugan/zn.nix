@@ -1,4 +1,4 @@
-local colors = require('render-markdown.colors')
+local colors = require('render-markdown.core.colors')
 
 local function get_hl(name)
   return vim.api.nvim_get_hl(0, { name = name, link = false })
