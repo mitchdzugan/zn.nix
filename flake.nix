@@ -28,17 +28,6 @@
         };
         bashW = mkScriptWriters "Bash" [pkgs.bash] "bash";
         bbW = mkScriptWriters "Bb" [pkgs.babashka] "bb";
-        nixRebuild = (bashW.writeBashScriptBin'
-          "nixRebuild"
-          []
-          ''
-	    if [ "$1" == "boot" ]; then
-              sudo bash -c 'cd /etc/nixos && nix flake update && nixos-rebuild boot'
-	    else
-              sudo bash -c 'cd /etc/nixos && nix flake update && nixos-rebuild switch'
-	    fi
-          ''
-        );
         uu = bashW.writeBashScriptBin "uu" ''
           base=$(pwd)
           while true; do
@@ -301,42 +290,54 @@
             ''}"
           ''
         ));
-      in (bbW // bashW // {
-      mkScriptWriters = mkScriptWriters;
-      mkLibPath = mkLibPath;
-      mkCljApp = clj-nix.lib.mkCljApp;
-      writePkgScriptBin = writePkgScriptBin;
-      uu = uu;
-      bp = bp;
-      jsim = jsim.packages.${system}.jsim;
-      rep = rep.packages.${system}.rep;
-      uuWrap = uuWrap;
-      uuFlakeWrap = uuFlakeWrap;
-      uuNodeWrap = pkg: uuWrap "package.json" pkg;
-      uuBbWrap = pkg: uuWrap "bb.edn" pkg;
-      uuCljWrap = pkg: uuWrap "deps.edn" pkg;
-      uuRustWrap = pkg: uuWrap "Cargo.toml" pkg;
-      s9n = s9n;
-      s9n-raw = s9n-raw;
-      s9nFlakeRoot = pkg: uuWrap "flake.nix" (s9n pkg);
-      zflake = zflake;
-      wait-for = wait-for;
-      mkScript-add-cljlib = mkScript-add-cljlib;
-      mk-enhanced-nrepl = mk-enhanced-nrepl;
-      reply = (uuWrap ".nrepl-port" (bashW.writeBashScriptBin'
-        "reply"
-        [pkgs.clojure]
-        ''
-          ${pkgs.clojure}/bin/clojure \
-            -Sdeps '{:deps {reply/reply {:mvn/version "0.5.0"}}}' \
-            -M -m reply.main --attach $(cat .nrepl-port) \
-            $@
-        ''
-      ));
-      nixRebuild = nixRebuild;
-      nixosModules.wslConfiguration = import ./os/wsl/configuration.nix {
-        inherit pkgs nixRebuild;
-      };
-    });
+        zn = (bbW // bashW // {
+          mkScriptWriters = mkScriptWriters;
+          mkLibPath = mkLibPath;
+          mkCljApp = clj-nix.lib.mkCljApp;
+          writePkgScriptBin = writePkgScriptBin;
+          uu = uu;
+          bp = bp;
+          jsim = jsim.packages.${system}.jsim;
+          rep = rep.packages.${system}.rep;
+          uuWrap = uuWrap;
+          uuFlakeWrap = uuFlakeWrap;
+          uuNodeWrap = pkg: uuWrap "package.json" pkg;
+          uuBbWrap = pkg: uuWrap "bb.edn" pkg;
+          uuCljWrap = pkg: uuWrap "deps.edn" pkg;
+          uuRustWrap = pkg: uuWrap "Cargo.toml" pkg;
+          s9n = s9n;
+          s9n-raw = s9n-raw;
+          s9nFlakeRoot = pkg: uuWrap "flake.nix" (s9n pkg);
+          zflake = zflake;
+          wait-for = wait-for;
+          mkScript-add-cljlib = mkScript-add-cljlib;
+          mk-enhanced-nrepl = mk-enhanced-nrepl;
+          reply = (uuWrap ".nrepl-port" (bashW.writeBashScriptBin'
+            "reply"
+            [pkgs.clojure]
+            ''
+              ${pkgs.clojure}/bin/clojure \
+                -Sdeps '{:deps {reply/reply {:mvn/version "0.5.0"}}}' \
+                -M -m reply.main --attach $(cat .nrepl-port) \
+                $@
+            ''
+          ));
+          nixRebuild = (bashW.writeBashScriptBin'
+            "nixRebuild"
+            []
+            ''
+              if [ "$1" == "boot" ]; then
+                sudo bash -c 'cd /etc/nixos && nix flake update && nixos-rebuild boot'
+              else
+                sudo bash -c 'cd /etc/nixos && nix flake update && nixos-rebuild switch'
+              fi
+            ''
+          );
+        });
+      in (zn // {
+        nixosModules.wslConfiguration = import ./os/wsl/configuration.nix {
+          inherit pkgs zn;
+        };
+      });
   };
 }

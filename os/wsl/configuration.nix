@@ -5,7 +5,7 @@
 # NixOS-WSL specific options are documented on the NixOS-WSL repository:
 # https://github.com/nix-community/NixOS-WSL
 
-{ pkgs, nixRebuild, ... }:
+{ pkgs, zn, ... }:
 
 {
   system.stateVersion = "25.05"; # Did you read the comment?
@@ -24,6 +24,7 @@
     pkgs.gh
     pkgs.neovim
     pkgs.wget
-    nixRebuild
+    zn.nixRebuild
+    zn.uu
   ];
 }
