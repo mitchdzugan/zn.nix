@@ -12,6 +12,7 @@
   ];
 
   home-manager.users.dz = hm@{ pkgs, ... }: {
+    home.stateVersion = "25.05";
     kitty = {
       enable = true;
       shellIntegration = {
