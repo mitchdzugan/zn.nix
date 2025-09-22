@@ -26,6 +26,12 @@ in {
   home-manager.users.dz = hm@{ pkgs, ... }: {
     home.stateVersion = "25.05";
 
+    sessionVariables= {
+      QT_QPA_PLATFORM = "wayland";
+      MOZ_ENABLE_WAYLAND = "0";
+      DISABLE_WAYLAND = "1";
+    };
+
     xdg.configFile = {
       "blesh" = {
         source = hm.config.lib.file.mkOutOfStoreSymlink ./domain/bash/blesh;
@@ -171,11 +177,6 @@ in {
     programs.neovim = import ./domain/nvim/config.nix { lib = lib; pkgs = pkgs; };
     programs.firefox = {
       enable = true;
-      package = zn.writeBashScriptBin' "firefox" [pkgs.firefox] ''
-        export MOZ_ENABLE_WAYLAND=0
-        export DISABLE_WAYLAND=1
-        ${pkgs.firefox}/bin/firefox firefox $@
-      '';
       policies = {
         Preferences = {
           "toolkit.legacyUserProfileCustomizations.stylesheets" = { Value = true; Status = "locked"; };
