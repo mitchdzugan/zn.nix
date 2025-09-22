@@ -13,7 +13,7 @@
 
   home-manager.users.dz = hm@{ pkgs, ... }: {
     home.stateVersion = "25.05";
-    kitty = {
+    programs.kitty = {
       enable = true;
       shellIntegration = {
         enableFishIntegration = true;
