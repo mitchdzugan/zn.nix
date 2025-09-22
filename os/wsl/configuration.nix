@@ -327,7 +327,7 @@ in {
     # zn.wait-for
     zn.zflake
     zkg.packages.${pkgs.hostPlatform.system}.zkg
-    # zkm.packages.${pkgs.hostPlatform.system}.zkm
+    zkm.packages.${pkgs.hostPlatform.system}.zkm
     ztr.packages.${pkgs.hostPlatform.system}.ztr
     ### xmonad stuff
     (pkgs.stdenv.mkDerivation {
