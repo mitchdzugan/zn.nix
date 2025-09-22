@@ -6,6 +6,15 @@
   inputs.jsim.inputs.nixpkgs.follows = "nixpkgs";
   inputs.rep.url = "github:eraserhd/rep";
   inputs.rep.inputs.nixpkgs.follows = "nixpkgs";
+  home-manager.url = "github:nix-community/home-manager";
+  home-manager.inputs.nixpkgs.follows = "nixpkgs";
+  ssbm.url = "github:mitchdzugan/ssbm-nix";
+  zkg.url = "github:mitchdzugan/zkg";
+  zkg.inputs.nixpkgs.follows = "nixpkgs";
+  zkm.url = "github:mitchdzugan/zkm";
+  zkm.inputs.nixpkgs.follows = "nixpkgs";
+  ztr.url = "github:mitchdzugan/ztr";
+  ztr.inputs.nixpkgs.follows = "nixpkgs";
   outputs = { self, nixpkgs, jsim, rep, clj-nix, ... }@attrs: {
     mk-zn = system:
       let
@@ -336,7 +345,7 @@
         });
       in (zn // {
         nixosModules.wslConfiguration = import ./os/wsl/configuration.nix {
-          inherit pkgs zn;
+          inherit pkgs zn attrs.ssbm attrs.zkg attrs.zkm attrs.ztr attrs.home-manager;
         };
       });
   };

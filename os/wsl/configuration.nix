@@ -1,14 +1,7 @@
-# Edit this configuration file to define what should be installed on
-# your system. Help is available in the configuration.nix(5) man page, on
-# https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
-
-# NixOS-WSL specific options are documented on the NixOS-WSL repository:
-# https://github.com/nix-community/NixOS-WSL
-
-{ pkgs, zn, ... }:
+{ pkgs, ssbm, zkg, zkm, ztr, zn, ... }:
 
 {
-  system.stateVersion = "25.05"; # Did you read the comment?
+  system.stateVersion = "25.05";
   wsl.enable = true;
   wsl.defaultUser = "dz";
 
@@ -24,7 +17,17 @@
     pkgs.gh
     pkgs.neovim
     pkgs.wget
+    ssbm.packages.${pkgs.hostPlatform.system}.slippi-launcher
+    ssbm.packages.${pkgs.hostPlatform.system}.slippi-netplay
+    ssbm.packages.${pkgs.hostPlatform.system}.slippi-playback
     zn.nixRebuild
+    zn.rep
+    zn.reply
     zn.uu
+    zn.wait-for
+    zn.zflake
+    zkg.packages.${pkgs.hostPlatform.system}.zkg
+    zkm.packages.${pkgs.hostPlatform.system}.zkm
+    ztr.packages.${pkgs.hostPlatform.system}.ztr
   ];
 }
