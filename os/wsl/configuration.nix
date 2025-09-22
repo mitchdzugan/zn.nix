@@ -26,7 +26,7 @@ in {
   home-manager.users.dz = hm@{ pkgs, ... }: {
     home.stateVersion = "25.05";
 
-    sessionVariables= {
+    home.sessionVariables= {
       QT_QPA_PLATFORM = "wayland";
       MOZ_ENABLE_WAYLAND = "0";
       DISABLE_WAYLAND = "1";
