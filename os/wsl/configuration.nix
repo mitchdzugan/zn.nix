@@ -169,6 +169,67 @@ in {
       ];
     };
     programs.neovim = import ./domain/nvim/config.nix { lib = lib; pkgs = pkgs; };
+    programs.firefox = {
+      enable = true;
+      package = zn.writeBashScriptBin' "firefox" [pkgs.firefox] ''
+        export MOZ_ENABLE_WAYLAND=0
+        export DISABLE_WAYLAND=1
+        ${pkgs.firefox}/bin/firefox firefox $@
+      '';
+      policies = {
+        Preferences = {
+          "toolkit.legacyUserProfileCustomizations.stylesheets" = { Value = true; Status = "locked"; };
+          "layout.css.devPixelsPerPx" = { Value = "1.0"; Status = "locked"; };
+        };
+      };
+      profiles = {
+        default = {
+          id = 0;
+          name = "default";
+          isDefault = true;
+          settings = {
+            "browser.tabs.inTitlebar" = 0;
+            "full-screen-api.ignore-widgets" = true;
+            "full-screen-api.exit-on.windowRaise" = false;
+            /*
+            "extensions.activeThemeId" = with config.nur.repos.rycee;
+              firefox-addons.dracula-dark-colorscheme.addonId;
+            */
+          };
+          userChrome = builtins.readFile ./domain/firefox/userChrome.css;
+          /*
+          extensions = with nixospkgs.nur.repos.rycee.firefox-addons; [
+            dracula-dark-colorscheme
+            ublock-origin
+            video-downloadhelper
+          ];
+          */
+        };
+        streaming = {
+          id = 1;
+          name = "streaming";
+          isDefault = false;
+          settings = {
+            "browser.tabs.inTitlebar" = 0;
+            "full-screen-api.ignore-widgets" = true;
+            "full-screen-api.exit-on.windowRaise" = false;
+            /*
+            "extensions.activeThemeId" = with config.nur.repos.rycee;
+              firefox-addons.dracula-dark-colorscheme.addonId;
+            */
+          };
+          userChrome = builtins.readFile ./domain/firefox/userChrome.css;
+          /*
+          extensions = with nixospkgs.nur.repos.rycee.firefox-addons; [
+            dracula-dark-colorscheme
+            i-auto-fullscreen
+            ublock-origin
+            video-downloadhelper
+          ];
+          */
+        };
+      };
+    };
     programs.kitty = {
       enable = true;
       shellIntegration = {
@@ -253,7 +314,6 @@ in {
     pkgs.bat
     pkgs.emacs
     pkgs.fastfetch
-    pkgs.firefox
     pkgs.gh
     pkgs.git
     pkgs.grc
