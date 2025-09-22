@@ -1,0 +1,53 @@
+name:                xmolib
+version:             0.0.1
+synopsis:            xmonad utils
+description:
+    utils for dz xmonad config and xmoctrl
+license:             BSD3
+license-file:        LICENSE
+author:              Paolo Capriotti, Huw Campbell
+maintainer:          info@hercules-ci.com
+copyright:           (c) 2012-2017 Paolo Capriotti <paolo@capriotti.io>
+category:            System, CLI, Options, Parsing
+build-type:          Simple
+cabal-version:       >= 1.10
+
+flag process
+  description:
+    Depend on the process package for Bash autocompletion
+  default: True
+
+library
+  hs-source-dirs:      src
+  ghc-options:         -Wall
+  default-language:    Haskell98
+
+  -- See https://ghc.haskell.org/trac/ghc/wiki/Migration/8.0#base-4.9.0.0
+  if impl(ghc >= 8.0)
+    ghc-options:  -Wno-redundant-constraints -Wcompat -Wnoncanonical-monad-instances
+    if impl(ghc < 8.8)
+      ghc-options: -Wnoncanonical-monadfail-instances
+
+  exposed-modules:     Xmolib.Entry.Xmonad
+                     , Xmolib.Entry.Xmoctrl
+
+  build-depends:       base                            >= 4.5 && < 5
+                     , text                            >= 1.2
+                     , transformers                    >= 0.2 && < 0.7
+                     , transformers-compat             >= 0.3 && < 0.8
+                     , prettyprinter                   >= 1.7 && < 1.8
+                     , prettyprinter-ansi-terminal     >= 1.1 && < 1.2
+                     , aeson
+                     , containers
+                     , xmonad
+                     , xmonad-contrib
+                     , xmonad-dbus
+                     , xmonad-extras
+                     , X11
+
+  if flag(process)
+    build-depends:     process                         >= 1.0 && < 1.7
+
+  if !impl(ghc >= 8)
+    build-depends:     semigroups                      >= 0.10 && < 0.21
+                     , fail                            == 4.9.*

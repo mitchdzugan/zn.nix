@@ -1,0 +1,114 @@
+toolbox#navigator-toolbox {
+	flex-direction: row-reverse !important;
+}
+
+toolbox#navigator-toolbox toolbar#toolbar-menubar {
+	display: none !important;
+}
+
+toolbar#PersonalToolbar {
+	display: none !important;
+}
+
+vbox#titlebar {
+	flex: 1 !important;
+}
+
+toolbarbutton#firefox-view-button {
+	display: none !important;
+}
+
+toolbaritem#urlbar-container {
+	width: 32px !important;
+}
+
+#urlbar[focused] {
+	position: fixed !important;
+	left: 10px !important;
+	top: 5px !important;
+	z-index: 100 !important;
+	width: calc(100% - 20px) !important;
+	padding: 3px !important;
+}
+
+#urlbar[breakout][breakout-extend] {
+	top: 0px !important;
+	padding: 0px !important;
+}
+
+#urlbar:not([focused])::before {
+	content: "" !important;
+	position: absolute !important;
+	left: 4px !important;
+	top: 4px !important;
+	z-index: 1 !important;
+	width: calc(100% - 8px) !important;
+	height: calc(100% - 8px) !important;
+	border-radius: 4px !important;
+	background: rgba(255, 255, 255, 0.0) !important;
+	pointer-events: none !important;
+	transition: background 200ms ease-in-out;
+}
+
+#urlbar:not([focused]):hover::before {
+	background: rgba(255, 255, 255, 0.2) !important;
+}
+
+#urlbar:not([focused])::after {
+	content: "  " !important;
+	display: flex !important;
+	flex-direction: column !important;
+	align-items: center !important;
+	font-family: monospace, monospace !important;
+	font-size: 1.4rem !important;
+	position: absolute !important;
+	left: 0px !important;
+	top: 0px !important;
+	z-index: 1 !important;
+	width: 100% !important;
+	height: 100% !important;
+	line-height: 32px !important;
+	text-align: center !important;
+	pointer-events: none !important;
+}
+#urlbar[focused]::after {
+	content: "" !important;
+	position: fixed !important;
+	left: 0px !important;
+	top: 1px !important;
+	z-index: -1 !important;
+	width: calc(100%) !important;
+	height: var(--urlbar-container-height) !important;
+	background: var(--toolbar-bgcolor) !important;
+}
+
+#urlbar:not([focused]) .urlbar-input-container > * {
+	display: none !important;
+	opacity: 0 !important;
+}
+
+#urlbar:not([focused]) .urlbar-input-container > .urlbar-searchmode-and-input-box-container,
+#urlbar:not([focused]) .urlbar-input-container > .urlbar-input-box {
+	display: flex !important;
+}
+
+tabs#tabbrowser-tabs {
+	border-inline-start: 0px solid transparent !important;
+	padding-inline-start: 1px !important;
+}
+
+toolbarbutton#save-to-pocket-button {
+	display: none !important;
+}
+
+toolbarbutton#fxa-toolbar-menu-button {
+	display: none !important;
+}
+
+toolbarspring#customizableui-special-spring1 {
+	display: none !important;
+}
+
+toolbarspring#customizableui-special-spring2 {
+	display: none !important;
+}
