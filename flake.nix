@@ -30,6 +30,7 @@
   }@attrs: {
     mk-zn = system:
       let
+        lib = nixpkgs.lib;
         pkgs = nixpkgs.legacyPackages.${system};
         mkLibPath = deps: "${builtins.concatStringsSep "/lib:" deps}/lib";
         writePkgScriptBin = name: ppg: exe: body: ((pkgs.writeTextFile {
@@ -357,7 +358,7 @@
         });
       in (zn // {
         nixosModules.wslConfiguration = import ./os/wsl/configuration.nix {
-          inherit pkgs zn ssbm zkg zkm ztr home-manager;
+          inherit pkgs lib zn ssbm zkg zkm ztr home-manager;
         };
       });
   };

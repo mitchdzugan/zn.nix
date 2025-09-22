@@ -1,4 +1,4 @@
-{ pkgs, home-manager, ssbm, zkg, zkm, ztr, zn, ... }:
+{ pkgs, lib, home-manager, ssbm, zkg, zkm, ztr, zn, ... }:
 
 {
   system.stateVersion = "25.05";
