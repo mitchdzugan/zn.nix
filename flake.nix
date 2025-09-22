@@ -15,7 +15,19 @@
   zkm.inputs.nixpkgs.follows = "nixpkgs";
   ztr.url = "github:mitchdzugan/ztr";
   ztr.inputs.nixpkgs.follows = "nixpkgs";
-  outputs = { self, nixpkgs, jsim, rep, clj-nix, ... }@attrs: {
+  outputs = {
+    self,
+    nixpkgs,
+    jsim,
+    rep,
+    clj-nix,
+    ssbm,
+    zkg,
+    zkm,
+    ztr,
+    home-manager,
+    ...
+  }@attrs: {
     mk-zn = system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
@@ -345,7 +357,7 @@
         });
       in (zn // {
         nixosModules.wslConfiguration = import ./os/wsl/configuration.nix {
-          inherit pkgs zn attrs.ssbm attrs.zkg attrs.zkm attrs.ztr attrs.home-manager;
+          inherit pkgs zn ssbm zkg zkm ztr home-manager;
         };
       });
   };
