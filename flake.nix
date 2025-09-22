@@ -32,11 +32,11 @@
           "nixRebuild"
           []
           ''
-            echo 0 :: $0
-            echo 1 :: $1
-            echo 2 :: $2
-            echo 3 :: $3
-            sudo bash -c 'cd /etc/nixos && nix flake update && nixos-rebuild switch'
+	    if [ "$1" == "boot" ]; then
+              sudo bash -c 'cd /etc/nixos && nix flake update && nixos-rebuild boot'
+	    else
+              sudo bash -c 'cd /etc/nixos && nix flake update && nixos-rebuild switch'
+	    fi
           ''
         );
         uu = bashW.writeBashScriptBin "uu" ''
