@@ -35,7 +35,6 @@ if $XONSH_INTERACTIVE:
 
   fastfetch \
     --shell-format $(xonsh -V) \
-    --separator-output-color black \
     --logo-width 37 \
     --logo-height 17 \
     --logo-padding-left 1 \

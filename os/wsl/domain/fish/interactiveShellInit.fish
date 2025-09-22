@@ -36,8 +36,7 @@ function fish_greeting
   end | fastfetch \
     --raw - \
     --logo-width $lw \
-    --logo-height $lh \
-    --separator-output-color black
+    --logo-height $lh
 end
 
 function firsty
