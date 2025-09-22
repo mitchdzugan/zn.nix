@@ -15,6 +15,7 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   environment.systemPackages = [
+    pkgs.bat
     pkgs.emacs
     pkgs.firefox
     pkgs.fish
