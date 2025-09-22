@@ -65,6 +65,7 @@
     fromGitHub = repo: ref: rev: pkgs.vimUtils.buildVimPlugin {
       pname = "${lib.strings.sanitizeDerivationName repo}";
       version = ref;
+      buildInputs = [ pkgs.vimPlugins.plenary-nvim pkgs.git ];
       src = builtins.fetchGit {
         url = "https://github.com/${repo}.git";
         ref = ref;
@@ -111,6 +112,7 @@
       render-markdown-nvim
       rose-pine
       rainbow-delimiters-nvim
+      snacks-nvim
       tabby-nvim
       telescope-nvim
       venn-nvim
@@ -169,6 +171,11 @@
         "shellRaining/hlchunk.nvim"
         "HEAD"
         "5465dd33ade8676d63f6e8493252283060cd72ca"
+        )
+      (fromGitHub
+        "srghma/nvimmer-ps"
+        "HEAD"
+        "9fd070a402e6b46ab10c1df5b4970de8346258bc"
         )
     ];
 }
