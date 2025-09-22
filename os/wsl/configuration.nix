@@ -181,6 +181,7 @@ in {
         cursor_blink_interval = "1.0 ease-in";
         dynamic_background_opacity = "yes";
         background_opacity = 0.9;
+        linux_display_server = "x11";
         transparent_background_colors = lib.concatStrings [
           "#604b49@0.9 "
           "#605955@0.9 "
