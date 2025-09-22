@@ -112,7 +112,6 @@ alias df='grc df'
 # alias wl-copy='wl-copy -f'
 
 fastfetch \
-	--separator-output-color black \
 	--logo-width 37 \
 	--logo-height 17 \
 	--logo-padding-left 1 \

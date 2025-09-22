@@ -26,7 +26,10 @@
         "host": "97"
       }
     },
-    "separator",
+    {
+      "type": "separator",
+      "outputColor": "black"
+    },
     "os",
     "host",
     "kernel",
