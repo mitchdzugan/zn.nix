@@ -1,4 +1,4 @@
-{ pkgs, ssbm, zkg, zkm, ztr, zn, ... }:
+{ pkgs, home-manager, ssbm, zkg, zkm, ztr, zn, ... }:
 
 {
   system.stateVersion = "25.05";
@@ -6,6 +6,38 @@
   wsl.defaultUser = "dz";
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  imports = [
+    home-manager.nixosModules.default
+  ];
+
+  home-manager.users.dz = hm@{ pkgs, ... }: {
+    kitty = {
+      enable = true;
+      shellIntegration = {
+        enableFishIntegration = true;
+      };
+      settings = {
+        shell = "fish";
+        confirm_os_window_close = -1;
+        cursor_trail = 1;
+        cursor_blink_interval = "1.0 ease-in";
+        dynamic_background_opacity = "yes";
+        background_opacity = 0.9;
+        transparent_background_colors = lib.concatStrings [
+          "#604b49@0.9 "
+          "#605955@0.9 "
+          "#385167@0.9 "
+          "#4b4e6c@0.9 "
+          "#11111b@0.8 "
+          "#6c7086@0.8 "
+          # "#181825@0.8 "
+          "#1e1e2e@0.9"
+        ];
+      };
+      themeFile = "purpurite";
+    };
+  };
 
   environment.systemPackages = [
     pkgs.bat
