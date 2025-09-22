@@ -17,6 +17,7 @@
   environment.systemPackages = [
     pkgs.bat
     pkgs.emacs
+    pkgs.fastfetch
     pkgs.firefox
     pkgs.fish
     pkgs.git
