@@ -221,8 +221,9 @@ in {
     pkgs.emacs
     pkgs.fastfetch
     pkgs.firefox
-    pkgs.git
     pkgs.gh
+    pkgs.git
+    pkgs.grc
     pkgs.wget
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-launcher
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-netplay
