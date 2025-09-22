@@ -293,7 +293,7 @@ require('nvim-cursorline').setup {
   }
 }
 
-require("dz.tabline")
+-- require("dz.tabline")
 require("dz.wk.init")
 
 require("tidy").setup({ filetype_exclude = { "markdown", "diff" } })
@@ -392,12 +392,34 @@ cmp.setup({
 })
 
 require('neoscroll').setup({})
-local lspconfig = require('lspconfig')
-lspconfig.hls.setup({ filetypes = { 'haskell', 'lhaskell', 'cabal' } })
-lspconfig.rust_analyzer.setup{}
-lspconfig.clojure_lsp.setup{}
-lspconfig.ocamllsp.setup{}
-lspconfig.fennel_ls.setup{}
+
+require("nvimmer-ps").setup()
+
+vim.lsp.config('hls', { filetypes = { 'haskell', 'lhaskell', 'cabal' } })
+vim.lsp.config('purescriptls', {
+  on_attach = function(client, bufnr)
+    require("nvimmer-ps").setup_on_attach(client, bufnr)
+  end,
+  on_init = function(client)
+    require("nvimmer-ps").setup_on_init(client)
+  end,
+  flags = {
+    debounce_text_changes = 150,
+  },
+  settings = {
+    purescript = {
+      formatter = "purs-tidy",
+      addSpagoSources = true,
+    },
+  },
+})
+vim.lsp.enable('hls')
+vim.lsp.enable('purescriptls')
+vim.lsp.enable('rust_analyzer')
+vim.lsp.enable('clojure_lsp')
+vim.lsp.enable('ocamllsp')
+vim.lsp.enable('fennel_ls')
+
 require('lspkind').init({
     -- defines how annotations are shown
     -- default: symbol
