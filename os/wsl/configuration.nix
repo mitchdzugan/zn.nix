@@ -63,4 +63,41 @@
     # zkm.packages.${pkgs.hostPlatform.system}.zkm
     ztr.packages.${pkgs.hostPlatform.system}.ztr
   ];
+
+  fonts.packages = with pkgs; [
+    dina-font
+    fira-code
+    fira-code-symbols
+    font-awesome
+    liberation_ttf
+    monaspace
+    mplus-outline-fonts.githubRelease
+    nerd-fonts.comic-shanns-mono
+    nerd-fonts.daddy-time-mono
+    nerd-fonts.go-mono
+    nerd-fonts.heavy-data
+    nerd-fonts.monaspace
+    nerd-fonts.open-dyslexic
+    nerd-fonts.proggy-clean-tt
+    nerd-fonts.recursive-mono
+    nerd-fonts.sauce-code-pro
+    nerd-fonts.space-mono
+    nerd-fonts.symbols-only
+    nerd-fonts.terminess-ttf
+    nerd-fonts.ubuntu-sans
+    noto-fonts-cjk-sans
+    noto-fonts-emoji
+    powerline-fonts
+    powerline-symbols
+    proggyfonts
+    ubuntu_font_family
+  ];
+  fonts.enableDefaultPackages = true;
+  fonts.fontconfig = {
+    defaultFonts = {
+      serif = [  "Liberation Serif" ];
+      sansSerif = [ "Ubuntu" ];
+      monospace = [ "MonaspiceKr Nerd Font Mono" ];
+    };
+  };
 }
