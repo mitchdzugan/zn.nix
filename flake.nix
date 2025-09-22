@@ -33,23 +33,23 @@
         lib = nixpkgs.lib;
         pkgs = nixpkgs.legacyPackages.${system};
         mkLibPath = deps: "${builtins.concatStringsSep "/lib:" deps}/lib";
-        writePkgScriptBin = name: ppg: exe: body: ((pkgs.writeTextFile {
+        writePkgScriptBin = shPkg: name: ppg: exe: body: ((pkgs.writeTextFile {
           name = name;
           executable = true;
           destination = "/bin/${name}";
           text = ''
-            #!/usr/bin/env ${exe}
+            #!${shPkg}/bin/${exe}
             ${body}
           '';
         }) // { propagatedBuildInputs = ppg; });
-        mkScriptWriters = label: pkgs: exe: {
+        mkScriptWriters = label: shPkg: exe: {
           "write${label}ScriptBin'" = name: ppg: body:
-            writePkgScriptBin name (pkgs ++ ppg) exe body;
+            writePkgScriptBin shPkg name ([shPkg] ++ ppg) exe body;
           "write${label}ScriptBin" = name: body:
-            writePkgScriptBin name pkgs exe body;
+            writePkgScriptBin shPkg name [shPkg] exe body;
         };
-        bashW = mkScriptWriters "Bash" [pkgs.bash] "bash";
-        bbW = mkScriptWriters "Bb" [pkgs.babashka] "bb";
+        bashW = mkScriptWriters "Bash" pkgs.bash "bash";
+        bbW = mkScriptWriters "Bb" pkgs.babashka "bb";
         uu = bashW.writeBashScriptBin "uu" ''
           base=$(pwd)
           while true; do
