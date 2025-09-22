@@ -334,7 +334,9 @@
         ''
       ));
       nixRebuild = nixRebuild;
-      nixosModules.wslConfiguration = (import ./os/wsl/configuration.nix (attrs // { nixRebuild = nixRebuild; }));
+      nixosModules.wslConfiguration = import ./os/wsl/configuration.nix {
+        inherit pkgs nixRebuild;
+      };
     });
   };
 }
