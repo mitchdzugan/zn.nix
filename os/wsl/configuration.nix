@@ -225,6 +225,7 @@ in {
     pkgs.git
     pkgs.grc
     pkgs.wget
+    pkgs.xorg.xorgserver
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-launcher
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-netplay
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-playback
