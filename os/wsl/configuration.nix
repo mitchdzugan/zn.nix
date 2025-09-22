@@ -24,7 +24,7 @@
     zn.rep
     zn.reply
     zn.uu
-    zn.wait-for
+    # zn.wait-for
     zn.zflake
     zkg.packages.${pkgs.hostPlatform.system}.zkg
     zkm.packages.${pkgs.hostPlatform.system}.zkm
