@@ -6,15 +6,15 @@
   inputs.jsim.inputs.nixpkgs.follows = "nixpkgs";
   inputs.rep.url = "github:eraserhd/rep";
   inputs.rep.inputs.nixpkgs.follows = "nixpkgs";
-  home-manager.url = "github:nix-community/home-manager";
-  home-manager.inputs.nixpkgs.follows = "nixpkgs";
-  ssbm.url = "github:mitchdzugan/ssbm-nix";
-  zkg.url = "github:mitchdzugan/zkg";
-  zkg.inputs.nixpkgs.follows = "nixpkgs";
-  zkm.url = "github:mitchdzugan/zkm";
-  zkm.inputs.nixpkgs.follows = "nixpkgs";
-  ztr.url = "github:mitchdzugan/ztr";
-  ztr.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.home-manager.url = "github:nix-community/home-manager";
+  inputs.home-manager.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.ssbm.url = "github:mitchdzugan/ssbm-nix";
+  inputs.zkg.url = "github:mitchdzugan/zkg";
+  inputs.zkg.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.zkm.url = "github:mitchdzugan/zkm";
+  inputs.zkm.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.ztr.url = "github:mitchdzugan/ztr";
+  inputs.ztr.inputs.nixpkgs.follows = "nixpkgs";
   outputs = {
     self,
     nixpkgs,
