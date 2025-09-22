@@ -1,6 +1,18 @@
 { pkgs, lib, home-manager, ssbm, zkg, zkm, ztr, zn, ... }:
 
-{
+let
+  mk_xmolib = haskellPackages: haskellPackages.mkDerivation {
+    pname = "xmolib";
+    version = "0.0.1";
+    src = ./domain/xmolib;
+    libraryHaskellDepends = with haskellPackages; [
+      base prettyprinter prettyprinter-ansi-terminal process text
+      transformers transformers-compat
+      aeson xmonad xmonad-contrib xmonad-dbus xmonad-extras
+    ];
+    license = lib.licenses.bsd3;
+  };
+in {
   system.stateVersion = "25.05";
   wsl.enable = true;
   wsl.defaultUser = "dz";
@@ -13,6 +25,38 @@
 
   home-manager.users.dz = hm@{ pkgs, ... }: {
     home.stateVersion = "25.05";
+
+    xdg.configFile = {
+      "blesh" = {
+        source = hm.config.lib.file.mkOutOfStoreSymlink ./domain/bash/blesh;
+        recursive = true;
+      };
+      "fastfetch" = {
+        source = hm.config.lib.file.mkOutOfStoreSymlink ./domain/fastfetch;
+        recursive = true;
+      };
+      "nvim/lua" = {
+        source = hm.config.lib.file.mkOutOfStoreSymlink ./domain/nvim/lua;
+        recursive = true;
+      };
+      "nvim/filetype.vim" = {
+        source = hm.config.lib.file.mkOutOfStoreSymlink ./domain/nvim/filetype.vim;
+        recursive = true;
+      };
+      "xmonad/xmonad.hs" = {
+        source = pkgs.writeText "xmonad.hs" ''
+          import qualified Xmolib.Entry.Xmonad as Xmolib
+          main :: IO ()
+          main = Xmolib.runXmonad
+        '';
+        recursive = false;
+      };
+      "xonsh/rc.d" = {
+        source = hm.config.lib.file.mkOutOfStoreSymlink ./domain/xonsh/rc.d;
+        recursive = true;
+      };
+    };
+
     programs.fish = {
       enable = true;
       functions = {
@@ -150,6 +194,26 @@
       };
       themeFile = "purpurite";
     };
+    programs.tmux = {
+      enable = true;
+      clock24 = true;
+      mouse = true;
+      escapeTime = 0;
+      keyMode = "vi";
+      plugins = with pkgs.tmuxPlugins; [
+        {
+          plugin = rose-pine;
+          extraConfig = ''
+            set -g @rose_pine_variant 'main'
+          '';
+        }
+      ];
+
+      extraConfig = ''
+        set -g allow-passthrough on
+        set -g default-shell ${pkgs.fish}/bin/fish
+      '';
+    };
   };
 
   environment.systemPackages = [
@@ -172,7 +236,58 @@
     zkg.packages.${pkgs.hostPlatform.system}.zkg
     # zkm.packages.${pkgs.hostPlatform.system}.zkm
     ztr.packages.${pkgs.hostPlatform.system}.ztr
+    ### xmonad stuff
+    (pkgs.stdenv.mkDerivation {
+      pname = "xmoctrl";
+      version = "0.0.1";
+
+      src = lib.cleanSourceWith {
+        filter = name: type: false;
+        src = lib.cleanSource ./.;
+      };
+
+      buildInputs = [
+        pkgs.xmonadctl
+        (pkgs.haskellPackages.ghcWithPackages (
+          haskellPackages: [(mk_xmolib haskellPackages)]
+        ))
+      ];
+      propagatedBuildInputs = [ pkgs.xmonadctl ];
+
+      dontConfigure = true;
+      buildPhase = ''
+        echo -e \
+          "\nimport qualified Xmolib.Entry.Xmoctrl as Xmolib"\
+          "\nmain :: IO ()"\
+          "\nmain = Xmolib.runXmoctrl" > xmoctrl.hs
+        ghc xmoctrl.hs
+      '';
+      installPhase = ''
+        mkdir -p $out/bin
+        cp xmoctrl $out/bin/xmoctrl
+      '';
+
+      meta = {
+        description = "command runner built on top of xmonadctl";
+        homepage = "https://github.com/mitchdzugan/dz-nixos";
+        license = lib.licenses.mit;
+        maintainers = with lib.maintainers; [ mitchdzugan ];
+        platforms = lib.platforms.linux;
+      };
+    })
+    pkgs.xmonadctl
   ];
+
+  services.xserver.windowManager.xmonad = {
+    enable = true;
+    enableContribAndExtras = true;
+    extraPackages = haskellPackages: [
+      haskellPackages.dbus
+      haskellPackages.List
+      haskellPackages.monad-logger
+      (mk_xmolib haskellPackages)
+    ];
+  };
 
   fonts.packages = with pkgs; [
     dina-font
