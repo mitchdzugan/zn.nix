@@ -214,6 +214,38 @@ in {
         set -g default-shell ${pkgs.fish}/bin/fish
       '';
     };
+
+    services.polybar = let
+      polybar_cava = pkgs.writeShellApplication {
+        name = "polybar_cava";
+        runtimeInputs = [ pkgs.coreutils pkgs.cava pkgs.gnused ];
+        text = builtins.readFile ./domain/polybar/cava.sh;
+      };
+      extraBinPath = lib.makeBinPath [
+        pkgs.coreutils
+        pkgs.systemd
+        pkgs.which
+        pkgs.bspwm
+        pkgs.nodejs
+        /* pkgs.pamixer */
+        pkgs.pulseaudio
+        polybar_cava
+      ]; in {
+      enable = true;
+      package = (pkgs.polybar.override {
+        alsaSupport = true;
+        iwSupport = true;
+        githubSupport = true;
+        pulseSupport = true;
+        mpdSupport = true;
+      });
+      config = ./domain/polybar/config.ini;
+      script = ''
+        for m in $(polybar --list-monitors | cut -d":" -f1); do
+          MONITOR=$m polybar --reload example &
+        done
+      '';
+    };
   };
 
   environment.systemPackages = [
@@ -224,8 +256,11 @@ in {
     pkgs.gh
     pkgs.git
     pkgs.grc
+    pkgs.nitrogen
     pkgs.wget
     pkgs.xorg.xorgserver
+    pkgs.xorg.xset
+    pkgs.xorg.xsetroot
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-launcher
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-netplay
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-playback
@@ -290,6 +325,8 @@ in {
       (mk_xmolib haskellPackages)
     ];
   };
+
+  systemd.user.services.polybar.wantedBy = [];
 
   fonts.packages = with pkgs; [
     dina-font

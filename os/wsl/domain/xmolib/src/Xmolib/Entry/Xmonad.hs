@@ -28,7 +28,7 @@ import Graphics.X11.ExtraTypes (xF86XK_AudioLowerVolume, xF86XK_AudioRaiseVolume
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
-myTerminal      = "wezterm"
+myTerminal      = "kitty"
 
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse :: Bool
@@ -263,12 +263,12 @@ myLogHook = return ()
 --
 -- By default, do nothing.
 myStartupHook = do
-    spawn "autorandr -c"
+    -- spawn "autorandr -c"
     spawn "xsetroot -cursor_name left_ptr"
     spawn "xset s off -dpms"
     spawn "nitrogen --restore"
-    spawn "xinputSetTouchpadNaturalScroll"
-    spawn "xinputSetTouchpadTapping"
+    -- spawn "xinputSetTouchpadNaturalScroll"
+    -- spawn "xinputSetTouchpadTapping"
     spawn "systemctl --user start polybar"
 
 ------------------------------------------------------------------------
