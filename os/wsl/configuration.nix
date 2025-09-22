@@ -26,12 +26,6 @@ in {
   home-manager.users.dz = hm@{ pkgs, ... }: {
     home.stateVersion = "25.05";
 
-    home.sessionVariables= {
-      QT_QPA_PLATFORM = "wayland";
-      MOZ_ENABLE_WAYLAND = "0";
-      DISABLE_WAYLAND = "1";
-    };
-
     xdg.configFile = {
       "blesh" = {
         source = hm.config.lib.file.mkOutOfStoreSymlink ./domain/bash/blesh;
@@ -389,6 +383,12 @@ in {
   };
 
   systemd.user.services.polybar.wantedBy = [];
+
+  environment.sessionVariables= {
+    QT_QPA_PLATFORM = "wayland";
+    MOZ_ENABLE_WAYLAND = "0";
+    DISABLE_WAYLAND = "1";
+  };
 
   fonts.packages = with pkgs; [
     dina-font
