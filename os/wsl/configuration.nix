@@ -23,7 +23,7 @@ in {
     home-manager.nixosModules.default
   ];
 
-  home-manager.users.dz = hm@{ pkgs, ... }: {
+  home-manager.users.dz = hm@{ pkgs, config, ... }: {
     home.stateVersion = "25.05";
 
     xdg.configFile = {
@@ -171,6 +171,7 @@ in {
     programs.neovim = import ./domain/nvim/config.nix { lib = lib; pkgs = pkgs; };
     programs.firefox = {
       enable = true;
+      package = config.lib.nixGL.wrap pkgs.firefox;
       policies = {
         Preferences = {
           "toolkit.legacyUserProfileCustomizations.stylesheets" = { Value = true; Status = "locked"; };
@@ -227,6 +228,7 @@ in {
     };
     programs.kitty = {
       enable = true;
+      package = config.lib.nixGL.wrap pkgs.kitty;
       shellIntegration = {
         enableFishIntegration = true;
       };
