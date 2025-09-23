@@ -27,6 +27,11 @@ in {
     home.stateVersion = "25.05";
 
     nixGL.packages = nixgl.packages;
+    hardware.graphics = {
+      enable = true;
+      extraPackages = [pkgs.mesa];
+      enable32Bit = true;
+    };
 
     xdg.configFile = {
       "blesh" = {
