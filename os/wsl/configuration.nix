@@ -23,15 +23,16 @@ in {
     home-manager.nixosModules.default
   ];
 
+  hardware.graphics = {
+    enable = true;
+    extraPackages = [pkgs.mesa];
+    enable32Bit = true;
+  };
+
   home-manager.users.dz = hm@{ pkgs, config, ... }: {
     home.stateVersion = "25.05";
 
     nixGL.packages = nixgl.packages;
-    hardware.graphics = {
-      enable = true;
-      extraPackages = [pkgs.mesa];
-      enable32Bit = true;
-    };
 
     xdg.configFile = {
       "blesh" = {
