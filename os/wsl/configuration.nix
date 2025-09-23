@@ -1,4 +1,4 @@
-{ pkgs, lib, home-manager, ssbm, zkg, zkm, ztr, zn, ... }:
+{ pkgs, lib, nixgl, home-manager, ssbm, zkg, zkm, ztr, zn, ... }:
 
 let
   mk_xmolib = haskellPackages: haskellPackages.mkDerivation {
@@ -25,6 +25,8 @@ in {
 
   home-manager.users.dz = hm@{ pkgs, config, ... }: {
     home.stateVersion = "25.05";
+
+    nixGL.packages = nixgl.packages;
 
     xdg.configFile = {
       "blesh" = {
