@@ -300,14 +300,14 @@ in {
     # autorandr -c
     # blueman-applet &
     # nm-applet &
+    # xset s off -dpms
+    # systemctl --user start redshift
     xsession.windowManager.bspwm = {
       enable = true;
       extraConfigEarly = ''
         xsetroot -cursor_name left_ptr
-        xset s off -dpms
         systemctl --user start picom
         systemctl --user start polybar
-        systemctl --user start redshift
         systemctl --user start bspwm-polybar
         nitrogen --restore
       '';
