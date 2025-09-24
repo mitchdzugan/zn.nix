@@ -30,11 +30,15 @@ in {
   };
 
   services.xrdp.enable = true;
-  services.xrdp.defaultWindowManager = "xmonad";
+  services.xrdp.defaultWindowManager = "bspwm";
   services.xrdp.openFirewall = true;
 
   home-manager.users.dz = hm@{ pkgs, config, ... }: {
     home.stateVersion = "25.05";
+    home.sessionPath = [
+      "/home/dz/Projects/dz-bin"
+      "/home/dz/Projects/dz-bspwm/bin"
+    ];
 
     nixGL.packages = nixgl.packages;
 
@@ -292,52 +296,206 @@ in {
         set -g default-shell ${pkgs.fish}/bin/fish
       '';
     };
-
-    services.polybar = let
-      polybar_cava = pkgs.writeShellApplication {
-        name = "polybar_cava";
-        runtimeInputs = [ pkgs.coreutils pkgs.cava pkgs.gnused ];
-        text = builtins.readFile ./domain/polybar/cava.sh;
-      };
-      extraBinPath = lib.makeBinPath [
-        pkgs.coreutils
-        pkgs.systemd
-        pkgs.which
-        pkgs.bspwm
-        pkgs.nodejs
-        /* pkgs.pamixer */
-        pkgs.pulseaudio
-        polybar_cava
-      ]; in {
+  
+    xsession.windowManager.bspwm = {
       enable = true;
-      package = (pkgs.polybar.override {
-        alsaSupport = true;
-        iwSupport = true;
-        githubSupport = true;
-        pulseSupport = true;
-        mpdSupport = true;
-      });
-      config = ./domain/polybar/config.ini;
-      script = ''
-        for m in $(polybar --list-monitors | cut -d":" -f1); do
-          MONITOR=$m polybar --reload example &
-        done
+      extraConfigEarly = ''
+        # autorandr -c
+        xsetroot -cursor_name left_ptr
+        xset s off -dpms
+        systemctl --user start picom
+        systemctl --user start polybar
+        systemctl --user start redshift
+        systemctl --user start bspwm-polybar
+        nitrogen --restore
+        blueman-applet &
+        nm-applet &
       '';
+      extraConfig = ''
+        bspwm-reset-monitors.js
+      '';
+      rules = {
+        float_kitty = {
+          rectangle="960x540+480+254";
+          state = "floating";
+        };
+        ztr = {
+          border = false;
+          focus = false;
+          state = "floating";
+          center = true;
+        };
+        Ztr = {
+          border = false;
+          focus = false;
+          state = "floating";
+          center = true;
+        };
+      };
+      settings = {
+        focus_follows_pointer = true;
+        pointer_follows_focus = true;
+        pointer_follows_monitor = true;
+        border_width = 2;
+        normal_border_color  = "#646464";
+        active_border_color  = "#645276";
+        focused_border_color = "#a487c7";
+      };
+    };
+
+    services = {
+      autorandr.enable = true;
+      dunst = {
+        enable = true;
+        iconTheme.package = pkgs.dracula-icon-theme;
+        iconTheme.name = "Dracula";
+        settings = {
+          global = {
+            transparency = 10;
+            corner_radius = 13;
+            background = "#1E1F29";
+          };
+        };
+      };
+      cliphist = { enable = true; };
+      sxhkd = {
+        enable = true;
+        keybindings = {
+          "super + shift + q" = "bspc quit";
+          "super + q" = "bspc node --close";
+          "super + space" = "home.zkm";
+          "super + slash" = "openApp";
+          "super + Return" = "kitty";
+          "super + w" = "firefox";
+          "super + e" = "thunar";
+          "super + grave" = "bspwm-cycle-monitor-focus.js";
+          "super + {t,shift + t,f,m}" = "bspc node -t {tiled,pseudo_tiled,floating,fullscreen}";
+          "super + {1-9,0,equal}" = "bspwm-focus-desktop.js {1-9,10,f}";
+          "super + shift + {1-9,0,plus}" = "bspwm-move-to-desktop.js -d {1-9,10,f}";
+          "super + {Left,Right,Up,Down}" = "bspc node -f {west,east,north,south}";
+          "super + ctrl + Left" = "bspc node -z left -10 0 || bspc node -z right -10 0";
+          "super + ctrl + Right" = "bspc node -z left 10 0 || bspc node -z right 10 0";
+          "super + ctrl + Up" = "bspc node -z top 0 -10 || bspc node -z bottom 0 -10";
+          "super + ctrl + Down" = "bspc node -z top 0 10 || bspc node -z bottom 0 10";
+          "XF86MonBrightnessUp" = "brightnessUp";
+          "XF86MonBrightnessDown" = "brightnessDown";
+          "XF86AudioRaiseVolume" = "volumeUp";
+          "XF86AudioLowerVolume" = "volumeDown";
+          "XF86AudioMute" = "volumeToggleMute";
+          "shift + XF86AudioRaiseVolume" = "next.py";
+          "shift + XF86AudioLowerVolume" = "prev.py";
+          "shift + XF86AudioMute" = "pause.py";
+          "XF86AudioPlay" = "pause.py";
+          "XF86AudioNext" = "next.py";
+          "XF86AudioPrev" = "prev.py";
+          "Print" = "ss_dir_scrot";
+          "ctrl + Print" = "ss_dir_scrot --select";
+          "shift + Print" = "ss_dir_scrot -u";
+        };
+      };
+      polybar =
+        let
+          polybar_cava = pkgs.writeShellApplication {
+            name = "polybar_cava";
+            runtimeInputs = [ pkgs.coreutils pkgs.cava pkgs.gnused ];
+            text = builtins.readFile ./domain/polybar/cava.sh;
+          };
+          extraBinPath = lib.makeBinPath [
+            pkgs.coreutils
+            pkgs.systemd
+            pkgs.which
+            pkgs.bspwm
+            pkgs.nodejs
+            /* pkgs.pamixer */
+            pkgs.pulseaudio
+            polybar_cava
+          ];
+        in {
+          enable = true;
+          package = (pkgs.polybar.override {
+            alsaSupport = true;
+            iwSupport = true;
+            githubSupport = true;
+            pulseSupport = true;
+            mpdSupport = true;
+          });
+          config = ./domain/polybar/config.ini;
+          script = ''
+            export PATH=$PATH:/home/dz/Projects/dz-bspwm/bin:${extraBinPath}
+
+            for m in $(polybar --list-monitors | cut -d":" -f1); do
+              MONITOR=$m polybar --reload example &
+            done
+          '';
+        };
+
+      redshift = {
+        # enable = true;
+        tray = true;
+        latitude = 41.86;
+        longitude = -88.12;
+      };
+
+      picom = {
+        enable = true;
+        package = pkgs.picom;
+        backend = "glx";
+        vSync = true;
+        # extraArgs = ["--config" "/home/dz/.config/picom/final.conf"];
+        settings = {
+          shadow = true;
+          shadow-radius = 50;
+          shadow-opacity = 0.35;
+          shadow-offset-x = -49;
+          shadow-offset-y = -47;
+          shadow-color = "#00020b";
+          frame-opacity = 0.95;
+          frame-opacity-for-same-colors = true;
+          inner-border-width = 1;
+          corner-radius = 13;
+          blur-method = "dual_kawase";
+          blur-strength = 10;
+          blur-background = true;
+          blur-background-frame = true;
+          dithered-present = false;
+          detect-client-opacity = true;
+          detect-transient = true;
+          detect-client-leader = true;
+          glx-no-stencil = true;
+          glx-no-rebind-pixmap = true;
+          use-damage = true;
+          xrender-sync-fence = true;
+        };
+      };
     };
   };
 
   environment.systemPackages = [
     pkgs.bat
-    pkgs.emacs
+    pkgs.fzf
     pkgs.fastfetch
-    pkgs.gh
     pkgs.git
     pkgs.grc
-    pkgs.nitrogen
     pkgs.wget
+    pkgs.emacs
+    pkgs.gh
+    pkgs.nitrogen
     pkgs.xorg.xorgserver
     pkgs.xorg.xset
     pkgs.xorg.xsetroot
+    pkgs.dotnet-sdk_9
+    pkgs.nodePackages.nodejs
+    (pkgs.python3.withPackages (python-pkgs: [
+      python-pkgs.beautifulsoup4
+      python-pkgs.coconut
+      python-pkgs.dmenu-python
+      python-pkgs.mpd2
+      python-pkgs.requests
+      python-pkgs.xlib
+      python-pkgs.pip
+    ]))
+    pkgs.typescript
+    pkgs.typescript-language-server
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-launcher
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-netplay
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-playback
@@ -394,6 +552,7 @@ in {
 
   services.xserver.enable = true;
   services.xserver.displayManager.sddm.enable = true;
+  services.xserver.windowManager.bspwm.enable = true;
   services.xserver.windowManager.xmonad = {
     enable = true;
     enableContribAndExtras = true;
@@ -405,10 +564,24 @@ in {
     ];
   };
 
+  systemd.user.services.picom.wantedBy = [];
   systemd.user.services.polybar.wantedBy = [];
+  systemd.user.services.redshift.wantedBy = [];
+  systemd.user.services.bspwm-polybar = {
+    enable = true;
+    description = "control dzbspwm polybar module";
+    serviceConfig = {
+      Type = "exec";
+      ExecStart = "/home/dz/Projects/dz-bin/bspwm-polybar-watch";
+      Restart = "on-failure";
+      Environment="PATH=$PATH:${lib.makeBinPath [ pkgs.coreutils pkgs.bash pkgs.which pkgs.ps pkgs.nodejs pkgs.bspwm pkgs.polybar ]}:/home/dz/Projects/dz-bin:/home/dz/Projects/dz-bspwm/bin";
+    };
+    wantedBy = [];
+  };
+  programs.dconf.enable = true;
 
   environment.sessionVariables= {
-    QT_QPA_PLATFORM = "wayland";
+    QT_QPA_PLATFORM = "xcb";
     MOZ_ENABLE_WAYLAND = "0";
     DISABLE_WAYLAND = "1";
   };
