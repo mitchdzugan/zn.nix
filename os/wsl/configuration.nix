@@ -487,7 +487,7 @@ in {
     pkgs.nodePackages.nodejs
     (pkgs.python3.withPackages (python-pkgs: [
       python-pkgs.beautifulsoup4
-      python-pkgs.coconut
+      # python-pkgs.coconut
       python-pkgs.dmenu-python
       python-pkgs.mpd2
       python-pkgs.requests
