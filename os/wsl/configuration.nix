@@ -29,6 +29,10 @@ in {
     enable32Bit = true;
   };
 
+  services.xrdp.enable = true;
+  services.xrdp.defaultWindowManager = "xmonad";
+  services.xrdp.openFirewall = true;
+
   home-manager.users.dz = hm@{ pkgs, config, ... }: {
     home.stateVersion = "25.05";
 
@@ -381,6 +385,8 @@ in {
     pkgs.xmonadctl
   ];
 
+  services.xserver.enable = true;
+  services.xserver.displayManager.sddm.enable = true;
   services.xserver.windowManager.xmonad = {
     enable = true;
     enableContribAndExtras = true;
