@@ -71,7 +71,7 @@ in {
 
     programs.bash.enable = true;
     programs.bash.enableVteIntegration = true;
-    programs.bash.bashrcExtra = ''
+    programs.bash.profileExtra = ''
       eval $(ssh-agent) &> /dev/null
       ssh-add ~/.ssh/bitbucket_work &> /dev/null
     '';
