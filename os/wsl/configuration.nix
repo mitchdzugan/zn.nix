@@ -297,10 +297,12 @@ in {
       '';
     };
 
+    # autorandr -c
+    # blueman-applet &
+    # nm-applet &
     xsession.windowManager.bspwm = {
       enable = true;
       extraConfigEarly = ''
-        # autorandr -c
         xsetroot -cursor_name left_ptr
         xset s off -dpms
         systemctl --user start picom
@@ -308,8 +310,6 @@ in {
         systemctl --user start redshift
         systemctl --user start bspwm-polybar
         nitrogen --restore
-        blueman-applet &
-        nm-applet &
       '';
       extraConfig = ''
         bspwm-reset-monitors.js
