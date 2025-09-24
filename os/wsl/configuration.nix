@@ -296,7 +296,7 @@ in {
         set -g default-shell ${pkgs.fish}/bin/fish
       '';
     };
-  
+
     xsession.windowManager.bspwm = {
       enable = true;
       extraConfigEarly = ''
@@ -361,22 +361,22 @@ in {
       sxhkd = {
         enable = true;
         keybindings = {
-          "super + shift + q" = "bspc quit";
-          "super + q" = "bspc node --close";
-          "super + space" = "home.zkm";
-          "super + slash" = "openApp";
-          "super + Return" = "kitty";
-          "super + w" = "firefox";
-          "super + e" = "thunar";
-          "super + grave" = "bspwm-cycle-monitor-focus.js";
-          "super + {t,shift + t,f,m}" = "bspc node -t {tiled,pseudo_tiled,floating,fullscreen}";
-          "super + {1-9,0,equal}" = "bspwm-focus-desktop.js {1-9,10,f}";
-          "super + shift + {1-9,0,plus}" = "bspwm-move-to-desktop.js -d {1-9,10,f}";
-          "super + {Left,Right,Up,Down}" = "bspc node -f {west,east,north,south}";
-          "super + ctrl + Left" = "bspc node -z left -10 0 || bspc node -z right -10 0";
-          "super + ctrl + Right" = "bspc node -z left 10 0 || bspc node -z right 10 0";
-          "super + ctrl + Up" = "bspc node -z top 0 -10 || bspc node -z bottom 0 -10";
-          "super + ctrl + Down" = "bspc node -z top 0 10 || bspc node -z bottom 0 10";
+          "alt + shift + q" = "bspc quit";
+          "alt + q" = "bspc node --close";
+          "alt + space" = "home.zkm";
+          "alt + slash" = "openApp";
+          "alt + Return" = "kitty";
+          "alt + w" = "firefox";
+          "alt + e" = "thunar";
+          "alt + grave" = "bspwm-cycle-monitor-focus.js";
+          "alt + {t,shift + t,f,m}" = "bspc node -t {tiled,pseudo_tiled,floating,fullscreen}";
+          "alt + {1-9,0,equal}" = "bspwm-focus-desktop.js {1-9,10,f}";
+          "alt + shift + {1-9,0,plus}" = "bspwm-move-to-desktop.js -d {1-9,10,f}";
+          "alt + {Left,Right,Up,Down}" = "bspc node -f {west,east,north,south}";
+          "alt + ctrl + Left" = "bspc node -z left -10 0 || bspc node -z right -10 0";
+          "alt + ctrl + Right" = "bspc node -z left 10 0 || bspc node -z right 10 0";
+          "alt + ctrl + Up" = "bspc node -z top 0 -10 || bspc node -z bottom 0 -10";
+          "alt + ctrl + Down" = "bspc node -z top 0 10 || bspc node -z bottom 0 10";
           "XF86MonBrightnessUp" = "brightnessUp";
           "XF86MonBrightnessDown" = "brightnessDown";
           "XF86AudioRaiseVolume" = "volumeUp";
