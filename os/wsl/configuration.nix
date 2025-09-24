@@ -305,6 +305,7 @@ in {
     xsession.windowManager.bspwm = {
       enable = true;
       extraConfigEarly = ''
+        sxhkd &
         xsetroot -cursor_name left_ptr
         systemctl --user start picom
         systemctl --user start polybar
