@@ -252,7 +252,7 @@ in {
         enableFishIntegration = true;
       };
       settings = {
-        shell = "bash -c 'fish'";
+        shell = "bash --login -c 'fish'";
         confirm_os_window_close = -1;
         cursor_trail = 1;
         cursor_blink_interval = "1.0 ease-in";
