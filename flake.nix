@@ -360,10 +360,14 @@
               fi
             ''
           );
+          nurpkgs = import nixpkgs {
+            inherit system;
+            overlays = [ nur.overlays.default ];
+          };
         });
       in (zn // {
         nixosModules.wslConfiguration = import ./os/wsl/configuration.nix {
-          inherit pkgs lib zn ssbm zkg zkm ztr home-manager nixgl nur;
+          inherit pkgs lib zn ssbm zkg zkm ztr home-manager nixgl nur nurpkgs;
         };
       });
   };

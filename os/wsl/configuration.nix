@@ -1,4 +1,4 @@
-{ pkgs, lib, nur, nixgl, home-manager, ssbm, zkg, zkm, ztr, zn, ... }:
+{ pkgs, lib, nur, nurpkgs, nixgl, home-manager, ssbm, zkg, zkm, ztr, zn, ... }:
 
 let
   mk_xmolib = haskellPackages: haskellPackages.mkDerivation {
@@ -17,7 +17,6 @@ let
     runtimeInputs = [ pkgs.coreutils pkgs.cava pkgs.gnused ];
     text = builtins.readFile ./domain/polybar/cava.sh;
   };
-  root_pkgs = pkgs;
 in {
   system.stateVersion = "25.05";
   wsl.enable = true;
@@ -224,7 +223,7 @@ in {
             */
           };
           userChrome = builtins.readFile ./domain/firefox/userChrome.css;
-          extensions = with root_pkgs.nur.repos.rycee.firefox-addons; [
+          extensions = with nurpkgs.nur.repos.rycee.firefox-addons; [
             dracula-dark-colorscheme
             ublock-origin
             video-downloadhelper
@@ -244,7 +243,7 @@ in {
             */
           };
           userChrome = builtins.readFile ./domain/firefox/userChrome.css;
-          extensions = with root_pkgs.nur.repos.rycee.firefox-addons; [
+          extensions = with nurpkgs.nur.repos.rycee.firefox-addons; [
             dracula-dark-colorscheme
             i-auto-fullscreen
             ublock-origin
