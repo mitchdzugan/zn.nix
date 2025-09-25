@@ -419,6 +419,7 @@ vim.lsp.enable('rust_analyzer')
 vim.lsp.enable('clojure_lsp')
 vim.lsp.enable('ocamllsp')
 vim.lsp.enable('fennel_ls')
+vim.lsp.enable('ts_ls')
 
 require('lspkind').init({
     -- defines how annotations are shown

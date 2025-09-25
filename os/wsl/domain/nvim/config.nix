@@ -57,6 +57,7 @@
         scss
         sql
         toml
+        tsx
         typescript
         vim
         xml
