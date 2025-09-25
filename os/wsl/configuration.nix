@@ -24,6 +24,7 @@ in {
   time.timeZone = "US/Central";
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nixpkgs.config.allowUnfree = true;
 
   imports = [
     home-manager.nixosModules.default
