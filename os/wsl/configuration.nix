@@ -17,6 +17,7 @@ let
     runtimeInputs = [ pkgs.coreutils pkgs.cava pkgs.gnused ];
     text = builtins.readFile ./domain/polybar/cava.sh;
   };
+  root_pkgs = pkgs;
 in {
   system.stateVersion = "25.05";
   wsl.enable = true;
@@ -223,7 +224,7 @@ in {
             */
           };
           userChrome = builtins.readFile ./domain/firefox/userChrome.css;
-          extensions = with nur.repos.rycee.firefox-addons; [
+          extensions = with root_pkgs.nur.repos.rycee.firefox-addons; [
             dracula-dark-colorscheme
             ublock-origin
             video-downloadhelper
@@ -243,7 +244,7 @@ in {
             */
           };
           userChrome = builtins.readFile ./domain/firefox/userChrome.css;
-          extensions = with nur.repos.rycee.firefox-addons; [
+          extensions = with root_pkgs.nur.repos.rycee.firefox-addons; [
             dracula-dark-colorscheme
             i-auto-fullscreen
             ublock-origin
