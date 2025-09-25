@@ -471,6 +471,7 @@ in {
     };
   };
 
+  programs.nix-ld.enable = true;
   environment.systemPackages = [
     pkgs.bat
     pkgs.fzf
