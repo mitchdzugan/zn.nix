@@ -31,11 +31,7 @@ in {
     nur.modules.nixos.default
   ];
 
-  hardware.graphics = {
-    enable = true;
-    extraPackages = [pkgs.mesa];
-    enable32Bit = true;
-  };
+  # hardware.graphics = { enable = true; extraPackages = [pkgs.mesa]; enable32Bit = true; };
 
   services.xrdp.enable = true;
   services.xrdp.defaultWindowManager = "bash --login -c 'bspwm'";
