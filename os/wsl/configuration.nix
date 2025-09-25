@@ -12,6 +12,11 @@ let
     ];
     license = lib.licenses.bsd3;
   };
+  polybar_cava = pkgs.writeShellApplication {
+    name = "polybar_cava";
+    runtimeInputs = [ pkgs.coreutils pkgs.cava pkgs.gnused ];
+    text = builtins.readFile ./domain/polybar/cava.sh;
+  };
 in {
   system.stateVersion = "25.05";
   wsl.enable = true;
@@ -398,11 +403,6 @@ in {
       };
       polybar =
         let
-          polybar_cava = pkgs.writeShellApplication {
-            name = "polybar_cava";
-            runtimeInputs = [ pkgs.coreutils pkgs.cava pkgs.gnused ];
-            text = builtins.readFile ./domain/polybar/cava.sh;
-          };
           extraBinPath = lib.makeBinPath [
             pkgs.coreutils
             pkgs.systemd
@@ -503,6 +503,7 @@ in {
     pkgs.typescript
     pkgs.typescript-language-server
     pkgs.mpd
+    polybar_cava
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-launcher
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-netplay
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-playback
