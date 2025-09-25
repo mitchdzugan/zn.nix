@@ -1,4 +1,4 @@
-{ pkgs, lib, nixgl, home-manager, ssbm, zkg, zkm, ztr, zn, ... }:
+{ pkgs, lib, nur, nixgl, home-manager, ssbm, zkg, zkm, ztr, zn, ... }:
 
 let
   mk_xmolib = haskellPackages: haskellPackages.mkDerivation {
@@ -27,6 +27,7 @@ in {
 
   imports = [
     home-manager.nixosModules.default
+    nur.modules.nixos.default
   ];
 
   hardware.graphics = {
@@ -222,13 +223,11 @@ in {
             */
           };
           userChrome = builtins.readFile ./domain/firefox/userChrome.css;
-          /*
-          extensions = with nixospkgs.nur.repos.rycee.firefox-addons; [
+          extensions = with nur.repos.rycee.firefox-addons; [
             dracula-dark-colorscheme
             ublock-origin
             video-downloadhelper
           ];
-          */
         };
         streaming = {
           id = 1;
@@ -244,14 +243,12 @@ in {
             */
           };
           userChrome = builtins.readFile ./domain/firefox/userChrome.css;
-          /*
-          extensions = with nixospkgs.nur.repos.rycee.firefox-addons; [
+          extensions = with nur.repos.rycee.firefox-addons; [
             dracula-dark-colorscheme
             i-auto-fullscreen
             ublock-origin
             video-downloadhelper
           ];
-          */
         };
       };
     };
