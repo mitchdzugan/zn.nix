@@ -45,7 +45,7 @@ in {
     ];
 
     nixGL.packages = nixgl.packages;
-    nixGL.defaultWrapper = "nvidia";
+    # nixGL.defaultWrapper = "nvidia";
 
     xdg.configFile = {
       "blesh" = {
@@ -440,7 +440,7 @@ in {
         enable = true;
         package = config.lib.nixGL.wrap pkgs.picom-pijulius;
         # package = pkgs.picom;
-        backend = "xr_glx_hybrid";
+        backend = "glx";
         vSync = false;
         # extraArgs = ["--config" "/home/dz/.config/picom/final.conf"];
         settings = {
