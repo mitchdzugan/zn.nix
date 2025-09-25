@@ -16,6 +16,7 @@ in {
   system.stateVersion = "25.05";
   wsl.enable = true;
   wsl.defaultUser = "dz";
+  time.timeZone = "US/Central";
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
@@ -302,13 +303,14 @@ in {
     # nm-applet &
     # xset s off -dpms
     # systemctl --user start redshift
+    # systemctl --user start polybar
     xsession.windowManager.bspwm = {
       enable = true;
       extraConfigEarly = ''
-        sxhkd &
+        bash --login -c 'sxhkd' &
+        bash --login -c 'polybar' &
         xsetroot -cursor_name left_ptr
         systemctl --user start picom
-        systemctl --user start polybar
         systemctl --user start bspwm-polybar
         nitrogen --restore
       '';
@@ -473,6 +475,8 @@ in {
 
   programs.nix-ld.enable = true;
   environment.systemPackages = [
+    pkgs.coreutils
+    pkgs.killall
     pkgs.bat
     pkgs.fzf
     pkgs.fastfetch
@@ -498,6 +502,7 @@ in {
     ]))
     pkgs.typescript
     pkgs.typescript-language-server
+    pkgs.mpd
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-launcher
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-netplay
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-playback
