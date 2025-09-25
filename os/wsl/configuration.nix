@@ -36,7 +36,7 @@ in {
   };
 
   services.xrdp.enable = true;
-  services.xrdp.defaultWindowManager = "bspwm";
+  services.xrdp.defaultWindowManager = "bash --login -c 'bspwm'";
   services.xrdp.openFirewall = true;
 
   home-manager.users.dz = hm@{ pkgs, config, ... }: {
@@ -309,18 +309,20 @@ in {
     # xset s off -dpms
     # systemctl --user start redshift
     # systemctl --user start polybar
+    # systemctl --user start bspwm-polybar
+    # systemctl --user start picom
     xsession.windowManager.bspwm = {
       enable = true;
       extraConfigEarly = ''
         bash --login -c 'sxhkd' &
-        bash --login -c 'polybar' &
+        bash --login -c 'MONITOR=rdp0 polybar' &
+        bash --login -c 'bspwm-polybar-watch' &
+        bash --login -c 'picom --backend xrender' &
         xsetroot -cursor_name left_ptr
-        systemctl --user start picom
-        systemctl --user start bspwm-polybar
         nitrogen --restore
       '';
       extraConfig = ''
-        bspwm-reset-monitors.js
+        bash --login -c 'bspwm-reset-monitors.js'
       '';
       rules = {
         float_kitty = {
