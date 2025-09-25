@@ -310,7 +310,7 @@ in {
         systemctl --user start picom
         systemctl --user start polybar
         systemctl --user start bspwm-polybar
-        nitrogen --restore
+        feh --bg-fill /mnt/c/Users/mdzugan/Downloads/h4xpblsw8dqf1.png
       '';
       extraConfig = ''
         bspwm-reset-monitors.js
@@ -481,7 +481,7 @@ in {
     pkgs.wget
     pkgs.emacs
     pkgs.gh
-    pkgs.nitrogen
+    pkgs.feh
     pkgs.xorg.xorgserver
     pkgs.xorg.xset
     pkgs.xorg.xsetroot
@@ -579,6 +579,18 @@ in {
       Environment="PATH=$PATH:${lib.makeBinPath [ pkgs.coreutils pkgs.bash pkgs.which pkgs.ps pkgs.nodejs pkgs.bspwm pkgs.polybar ]}:/home/dz/Projects/dz-bin:/home/dz/Projects/dz-bspwm/bin";
     };
     wantedBy = [];
+  };
+  systemd.user.services.keepwsl = {
+    enable = true;
+    description = "ensure wsl doesnt shut itself off in the background";
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "/mnt/c/Windows/System32/wsl.exe -d NixOS --exec sh -c 'sleep infinity'";
+      Restart = "always";
+      RestartSec = 10;
+      Environment="PATH=$PATH:${lib.makeBinPath [ pkgs.coreutils pkgs.bash ]}";
+    };
+    wantedBy = ["multi-user.target"];
   };
   programs.dconf.enable = true;
 
