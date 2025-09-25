@@ -441,9 +441,10 @@ in {
 
       picom = {
         enable = true;
-        package = config.lib.nixGL.wrap pkgs.picom-pijulius;
-        backend = "xrender";
-        vSync = true;
+        # package = config.lib.nixGL.wrap pkgs.picom-pijulius;
+        package = pkgs.picom;
+        backend = "xr_glx_hybrid";
+        vSync = false;
         # extraArgs = ["--config" "/home/dz/.config/picom/final.conf"];
         settings = {
           shadow = true;
@@ -464,8 +465,8 @@ in {
           detect-client-opacity = true;
           detect-transient = true;
           detect-client-leader = true;
-          glx-no-stencil = true;
-          glx-no-rebind-pixmap = true;
+          # glx-no-stencil = true;
+          # glx-no-rebind-pixmap = true;
           use-damage = true;
           xrender-sync-fence = true;
         };
