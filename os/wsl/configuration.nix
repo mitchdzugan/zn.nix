@@ -1,4 +1,4 @@
-{ pkgs, lib, nixgl, home-manager, ssbm, zkg, zkm, ztr, zn, ... }:
+{ pkgs, lib, nur, nurpkgs, nixgl, home-manager, ssbm, zkg, zkm, ztr, zn, ... }:
 
 let
   mk_xmolib = haskellPackages: haskellPackages.mkDerivation {
@@ -12,15 +12,23 @@ let
     ];
     license = lib.licenses.bsd3;
   };
+  polybar_cava = pkgs.writeShellApplication {
+    name = "polybar_cava";
+    runtimeInputs = [ pkgs.coreutils pkgs.cava pkgs.gnused ];
+    text = builtins.readFile ./domain/polybar/cava.sh;
+  };
 in {
   system.stateVersion = "25.05";
   wsl.enable = true;
   wsl.defaultUser = "dz";
+  time.timeZone = "US/Central";
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nixpkgs.config.allowUnfree = true;
 
   imports = [
     home-manager.nixosModules.default
+    nur.modules.nixos.default
   ];
 
   hardware.graphics = {
@@ -30,7 +38,7 @@ in {
   };
 
   services.xrdp.enable = true;
-  services.xrdp.defaultWindowManager = "bspwm";
+  services.xrdp.defaultWindowManager = "bash --login -c 'bspwm'";
   services.xrdp.openFirewall = true;
 
   home-manager.users.dz = hm@{ pkgs, config, ... }: {
@@ -216,13 +224,11 @@ in {
             */
           };
           userChrome = builtins.readFile ./domain/firefox/userChrome.css;
-          /*
-          extensions = with nixospkgs.nur.repos.rycee.firefox-addons; [
-            dracula-dark-colorscheme
+          extensions = with nurpkgs.nur.repos.rycee.firefox-addons; [
+            # dracula-dark-colorscheme
             ublock-origin
-            video-downloadhelper
+            # video-downloadhelper
           ];
-          */
         };
         streaming = {
           id = 1;
@@ -238,14 +244,12 @@ in {
             */
           };
           userChrome = builtins.readFile ./domain/firefox/userChrome.css;
-          /*
-          extensions = with nixospkgs.nur.repos.rycee.firefox-addons; [
-            dracula-dark-colorscheme
-            i-auto-fullscreen
+          extensions = with nurpkgs.nur.repos.rycee.firefox-addons; [
+            # dracula-dark-colorscheme
+            # i-auto-fullscreen
             ublock-origin
-            video-downloadhelper
+            # video-downloadhelper
           ];
-          */
         };
       };
     };
@@ -302,18 +306,21 @@ in {
     # nm-applet &
     # xset s off -dpms
     # systemctl --user start redshift
+    # systemctl --user start polybar
+    # systemctl --user start bspwm-polybar
+    # systemctl --user start picom
+    # bash --login -c 'picom --backend xrender' &
     xsession.windowManager.bspwm = {
       enable = true;
       extraConfigEarly = ''
-        sxhkd &
+        bash --login -c 'sxhkd' &
+        bash --login -c 'MONITOR=rdp0 polybar' &
+        bash --login -c 'bspwm-polybar-watch' &
         xsetroot -cursor_name left_ptr
-        systemctl --user start picom
-        systemctl --user start polybar
-        systemctl --user start bspwm-polybar
         feh --bg-fill /mnt/c/Users/mdzugan/Downloads/h4xpblsw8dqf1.png
       '';
       extraConfig = ''
-        bspwm-reset-monitors.js
+        bash --login -c 'bspwm-reset-monitors.js'
       '';
       rules = {
         float_kitty = {
@@ -396,11 +403,6 @@ in {
       };
       polybar =
         let
-          polybar_cava = pkgs.writeShellApplication {
-            name = "polybar_cava";
-            runtimeInputs = [ pkgs.coreutils pkgs.cava pkgs.gnused ];
-            text = builtins.readFile ./domain/polybar/cava.sh;
-          };
           extraBinPath = lib.makeBinPath [
             pkgs.coreutils
             pkgs.systemd
@@ -473,6 +475,8 @@ in {
 
   programs.nix-ld.enable = true;
   environment.systemPackages = [
+    pkgs.coreutils
+    pkgs.killall
     pkgs.bat
     pkgs.fzf
     pkgs.fastfetch
@@ -498,6 +502,8 @@ in {
     ]))
     pkgs.typescript
     pkgs.typescript-language-server
+    pkgs.mpd
+    polybar_cava
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-launcher
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-netplay
     ssbm.packages.${pkgs.hostPlatform.system}.slippi-playback

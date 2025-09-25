@@ -17,6 +17,7 @@
   inputs.ztr.inputs.nixpkgs.follows = "nixpkgs";
   inputs.nixgl.url = "github:nix-community/nixGL";
   inputs.nixgl.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.nur.url = "github:nix-community/NUR";
   outputs = {
     self,
     nixpkgs,
@@ -29,6 +30,7 @@
     ztr,
     home-manager,
     nixgl,
+    nur,
     ...
   }@attrs: {
     mk-zn = system:
@@ -359,9 +361,13 @@
             ''
           );
         });
+        nurpkgs = import nixpkgs {
+          inherit system;
+          overlays = [ nur.overlays.default ];
+        };
       in (zn // {
         nixosModules.wslConfiguration = import ./os/wsl/configuration.nix {
-          inherit pkgs lib zn ssbm zkg zkm ztr home-manager nixgl;
+          inherit pkgs lib zn ssbm zkg zkm ztr home-manager nixgl nur nurpkgs;
         };
       });
   };
