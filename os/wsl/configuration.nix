@@ -225,7 +225,7 @@ in {
           };
           userChrome = builtins.readFile ./domain/firefox/userChrome.css;
           extensions = with nurpkgs.nur.repos.rycee.firefox-addons; [
-            dracula-dark-colorscheme
+            # dracula-dark-colorscheme
             ublock-origin
             video-downloadhelper
           ];
@@ -245,7 +245,7 @@ in {
           };
           userChrome = builtins.readFile ./domain/firefox/userChrome.css;
           extensions = with nurpkgs.nur.repos.rycee.firefox-addons; [
-            dracula-dark-colorscheme
+            # dracula-dark-colorscheme
             i-auto-fullscreen
             ublock-origin
             video-downloadhelper
