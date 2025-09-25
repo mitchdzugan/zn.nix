@@ -441,8 +441,8 @@ in {
 
       picom = {
         enable = true;
-        package = pkgs.picom;
-        backend = "glx";
+        package = config.lib.nixGL.wrap pkgs.picom-pijulius;
+        backend = "xrender";
         vSync = true;
         # extraArgs = ["--config" "/home/dz/.config/picom/final.conf"];
         settings = {
@@ -601,6 +601,7 @@ in {
   programs.dconf.enable = true;
 
   environment.sessionVariables= {
+    DONT_PROMPT_WSL_INSTALL = "1";
     QT_QPA_PLATFORM = "xcb";
     MOZ_ENABLE_WAYLAND = "0";
     DISABLE_WAYLAND = "1";
