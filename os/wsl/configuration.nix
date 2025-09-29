@@ -438,10 +438,10 @@ in {
 
       picom = {
         enable = true;
-        package = config.lib.nixGL.wrap pkgs.picom-pijulius;
-        # package = pkgs.picom;
+        # package = config.lib.nixGL.wrap pkgs.picom-pijulius;
+        package = pkgs.picom;
         backend = "glx";
-        vSync = false;
+        vSync = true;
         # extraArgs = ["--config" "/home/dz/.config/picom/final.conf"];
         settings = {
           shadow = true;
@@ -462,9 +462,10 @@ in {
           detect-client-opacity = true;
           detect-transient = true;
           detect-client-leader = true;
-          # glx-no-stencil = true;
-          # glx-no-rebind-pixmap = true;
-          use-damage = true;
+          glx-no-stencil = true;
+          glx-no-rebind-pixmap = true;
+          use-damage = false;
+          unredir-if-possible = true;
           xrender-sync-fence = true;
         };
       };
