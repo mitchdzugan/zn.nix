@@ -44,6 +44,21 @@ in {
       "/home/dz/Projects/dz-bspwm/bin"
     ];
 
+    home.pointerCursor = {
+      gtk.enable = true;
+      x11.enable = true;
+      package = pkgs.bibata-cursors;
+      name = "Bibata-Modern-Ice";
+      size = 24;
+    };
+
+    gtk.enable = true;
+    gtk.theme.package = pkgs.rose-pine-gtk-theme;
+    gtk.theme.name = "rose-pine";
+    gtk.iconTheme.package = pkgs.dracula-icon-theme;
+    gtk.iconTheme.name = "Dracula";
+
+
     nixGL.packages = nixgl.packages;
     # nixGL.defaultWrapper = "nvidia";
 
@@ -498,6 +513,7 @@ in {
       python-pkgs.requests
       python-pkgs.xlib
       python-pkgs.pip
+      python-pkgs.virtualenv
     ]))
     pkgs.typescript
     pkgs.typescript-language-server
