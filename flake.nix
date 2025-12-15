@@ -241,6 +241,7 @@
         wait-for = mkCljNative ./wait-for/. "wait-for" [
           "-H:JNIConfigurationFiles=${./.}/wait-for/.graal-support/jni.json"
           "-H:ResourceConfigurationFiles=${./.}/wait-for/.graal-support/resources.json"
+          "--initialize-at-run-time=org.jline.terminal.impl.ffm.CLibrary"
           "--initialize-at-run-time=org.jline.nativ.Kernel32$MOUSE_EVENT_RECORD"
           "--initialize-at-run-time=org.jline.nativ.Kernel32$COORD"
           "--initialize-at-run-time=org.jline.nativ.Kernel32$FOCUS_EVENT_RECORD"
