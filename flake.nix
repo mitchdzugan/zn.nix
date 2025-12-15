@@ -215,7 +215,7 @@
         '';
         mkCljNative = psrc: name: eargs: (clj-nix.lib.mkCljApp {
           pkgs = pkgs;
-          nativeImage.graalvm = pkgs.graalPackages.graalvm-ce
+          nativeImage.graalvm = pkgs.graalPackages.graalvm-ce;
           modules = [
             {
               builder-preBuild = mkScript-add-cljlib "src";
