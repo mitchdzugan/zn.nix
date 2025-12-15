@@ -215,7 +215,6 @@
         '';
         mkCljNative = psrc: name: eargs: (clj-nix.lib.mkCljApp {
           pkgs = pkgs;
-          nativeImage.graalvm = pkgs.graalvmPackages.graalvm-ce;
           modules = [
             {
               builder-preBuild = mkScript-add-cljlib "src";
@@ -223,6 +222,7 @@
               name = "org.mitchdzugan/${name}";
               main-ns = "${name}.core";
               builder-extra-inputs = [];
+              nativeImage.graalvm = pkgs.graalvmPackages.graalvm-ce;
               nativeImage.enable = true;
               nativeImage.extraNativeImageBuildArgs = [
                 "--initialize-at-build-time"
