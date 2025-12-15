@@ -6,31 +6,12 @@
   inputs.jsim.inputs.nixpkgs.follows = "nixpkgs";
   inputs.rep.url = "github:eraserhd/rep";
   inputs.rep.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.home-manager.url = "github:nix-community/home-manager";
-  inputs.home-manager.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.ssbm.url = "github:mitchdzugan/ssbm-nix";
-  inputs.zkg.url = "github:mitchdzugan/zkg";
-  inputs.zkg.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.zkm.url = "github:mitchdzugan/zkm";
-  inputs.zkm.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.ztr.url = "github:mitchdzugan/ztr";
-  inputs.ztr.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.nixgl.url = "github:nix-community/nixGL";
-  inputs.nixgl.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.nur.url = "github:nix-community/NUR";
   outputs = {
     self,
     nixpkgs,
     jsim,
     rep,
     clj-nix,
-    ssbm,
-    zkg,
-    zkm,
-    ztr,
-    home-manager,
-    nixgl,
-    nur,
     ...
   }@attrs: {
     mk-zn = system:
@@ -361,14 +342,6 @@
             ''
           );
         });
-        nurpkgs = import nixpkgs {
-          inherit system;
-          overlays = [ nur.overlays.default ];
-        };
-      in (zn // {
-        nixosModules.wslConfiguration = import ./os/wsl/configuration.nix {
-          inherit pkgs lib zn ssbm zkg zkm ztr home-manager nixgl nur nurpkgs;
-        };
-      });
+      in (zn);
   };
 }
